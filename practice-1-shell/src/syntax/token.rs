@@ -1,5 +1,14 @@
-enum Token {
+pub enum LiteralKind {
+    SingleQuoted,
+    DoubleQuoted,
+}
+pub enum Token {
     Pipe,
     Ident(String),
-    Literal { need_exp: bool },
+    Literal {
+        content: String,
+        kind: LiteralKind,
+        terminated: bool,
+    },
+    WhiteSpace
 }
