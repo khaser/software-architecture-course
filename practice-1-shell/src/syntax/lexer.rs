@@ -21,8 +21,9 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn tokenize(&mut self) -> Vec<Token> {
-        let iter = std::iter::from_fn(move || self.get_next_token());
+    pub fn tokenize(self) -> Vec<Token> {
+        let mut lex = self;
+        let iter = std::iter::from_fn(move || lex.get_next_token());
         iter.collect()
     }
 }
@@ -42,7 +43,7 @@ impl Lexer<'_> {
             match c {
                 s if s == quote_symbol => {
                     return Token::Literal {
-                        content: self.substr_from(pos),
+                        content: self.substr_from_to(pos, self.pos_within_token() - 1),
                         kind: lit_kind,
                         terminated: true,
                     };
@@ -60,8 +61,14 @@ impl Lexer<'_> {
         };
     }
 
+    #[inline]
+    fn substr_from_to(&self, from: usize, to: usize) -> String {
+        self.input[from..to].to_string()
+    }
+
+    #[inline]
     fn substr_from(&self, from: usize) -> String {
-        self.input[from..self.pos_within_token()].to_string()
+        self.substr_from_to(from, self.pos_within_token())
     }
 
     fn is_whitespace(c: char) -> bool {
