@@ -11,5 +11,5 @@ pub enum Token {
         terminated: bool,
     },
     WhiteSpace,
-    Uknown
+    Uknown,
 }

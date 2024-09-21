@@ -22,9 +22,7 @@ impl<'a> Lexer<'a> {
     }
 
     pub fn tokenize(&mut self) -> Vec<Token> {
-        let iter = std::iter::from_fn(move || {
-            self.get_next_token()
-        });
+        let iter = std::iter::from_fn(move || self.get_next_token());
         iter.collect()
     }
 }
@@ -37,21 +35,29 @@ impl Lexer<'_> {
     fn quoted_string(&mut self, lit_kind: LiteralKind) -> Token {
         let quote_symbol = match lit_kind {
             LiteralKind::DoubleQuoted => '\"',
-            LiteralKind::SingleQuoted => '\''
+            LiteralKind::SingleQuoted => '\'',
         };
         let pos = self.pos_within_token();
         while let Some(c) = self.advance() {
             match c {
                 s if s == quote_symbol => {
-                    return Token::Literal { content: self.substr_from(pos), kind: lit_kind, terminated: true };
+                    return Token::Literal {
+                        content: self.substr_from(pos),
+                        kind: lit_kind,
+                        terminated: true,
+                    };
                 }
                 '\\' if self.first() == '\\' || self.first() == quote_symbol => {
                     self.advance();
                 }
-                _ => ()
+                _ => (),
             }
         }
-        return Token::Literal { content: self.substr_from(pos), kind: lit_kind, terminated: false };
+        return Token::Literal {
+            content: self.substr_from(pos),
+            kind: lit_kind,
+            terminated: false,
+        };
     }
 
     fn substr_from(&self, from: usize) -> String {
@@ -71,14 +77,14 @@ impl Lexer<'_> {
     fn is_id_start(c: char) -> bool {
         match c {
             'a'..'z' | 'A'..'Z' | '_' => true,
-            _ => false
+            _ => false,
         }
     }
 
     fn is_id_continue(c: char) -> bool {
         match c {
             'a'..'z' | 'A'..'Z' | '_' | '0'..'9' => true,
-            _ => false
+            _ => false,
         }
     }
 
@@ -99,18 +105,12 @@ impl Lexer<'_> {
     fn get_next_token(&mut self) -> Option<Token> {
         let c = match self.advance() {
             Some(c) => c,
-            None => return None
+            None => return None,
         };
         let token = match c {
-            '\'' => {
-                self.quoted_string(LiteralKind::SingleQuoted)
-            }
-            '\"' => {
-                self.quoted_string(LiteralKind::DoubleQuoted)
-            }
-            '|' => {
-                Token::Pipe
-            }
+            '\'' => self.quoted_string(LiteralKind::SingleQuoted),
+            '\"' => self.quoted_string(LiteralKind::DoubleQuoted),
+            '|' => Token::Pipe,
             c if Self::is_whitespace(c) => {
                 self.eat_while(Self::is_whitespace);
                 Token::WhiteSpace
@@ -120,10 +120,9 @@ impl Lexer<'_> {
                 self.eat_while(Self::is_id_continue);
                 Token::Ident(self.substr_from(pos))
             }
-            _ => Token::Uknown
+            _ => Token::Uknown,
         };
         Some(token)
-
     }
 
     fn advance(&mut self) -> Option<char> {
