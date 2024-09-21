@@ -1,6 +1,6 @@
 use std::process::ExitCode;
 
-use super::command::executable::Executable;
+use super::executable::Executable;
 
 pub struct Scheduler {
 

@@ -8,6 +8,7 @@ const EOF_CHAR: char = '\0';
 
 pub struct Lexer<'a> {
     input: &'a str,
+    len_remaining: usize,
     chars: Chars<'a>,
 }
 
@@ -15,42 +16,46 @@ impl<'a> Lexer<'a> {
     pub fn new(input: &'a str) -> Self {
         Lexer {
             input,
+            len_remaining: input.len(),
             chars: input.chars(),
         }
     }
 
-    pub fn tokenize(&self) -> Vec<Token> {}
+    pub fn tokenize(&mut self) -> Vec<Token> {
+        let iter = std::iter::from_fn(move || {
+            self.get_next_token()
+        });
+        iter.collect()
+    }
 }
 
 impl Lexer<'_> {
-
     fn first(&self) -> char {
         self.chars.clone().next().unwrap_or(EOF_CHAR)
     }
 
     fn quoted_string(&mut self, lit_kind: LiteralKind) -> Token {
-        let mut content = String::new();
         let quote_symbol = match lit_kind {
             LiteralKind::DoubleQuoted => '\"',
             LiteralKind::SingleQuoted => '\''
         };
+        let pos = self.pos_within_token();
         while let Some(c) = self.advance() {
             match c {
                 s if s == quote_symbol => {
-                    return Token::Literal { content, kind: lit_kind, terminated: true };
+                    return Token::Literal { content: self.substr_from(pos), kind: lit_kind, terminated: true };
                 }
                 '\\' if self.first() == '\\' || self.first() == quote_symbol => {
-                    content.push(self.advance().unwrap());
+                    self.advance();
                 }
                 _ => ()
             }
         }
-        return Token::Literal { content, kind: lit_kind, terminated: false };
+        return Token::Literal { content: self.substr_from(pos), kind: lit_kind, terminated: false };
     }
 
-    fn identifier(&mut self) -> Token {
-        todo!()
-        // self.eat_while(Self::is_id_continue)
+    fn substr_from(&self, from: usize) -> String {
+        self.input[from..self.pos_within_token()].to_string()
     }
 
     fn is_whitespace(c: char) -> bool {
@@ -87,6 +92,9 @@ impl Lexer<'_> {
         }
     }
 
+    fn pos_within_token(&self) -> Pos {
+        self.len_remaining - self.chars.as_str().len()
+    }
 
     fn get_next_token(&mut self) -> Option<Token> {
         let c = match self.advance() {
@@ -108,9 +116,14 @@ impl Lexer<'_> {
                 Token::WhiteSpace
             }
             c if Self::is_id_start(c) => {
-                self.identifier()
+                let pos = self.pos_within_token() - 1;
+                self.eat_while(Self::is_id_continue);
+                Token::Ident(self.substr_from(pos))
             }
-        }
+            _ => Token::Uknown
+        };
+        Some(token)
+
     }
 
     fn advance(&mut self) -> Option<char> {

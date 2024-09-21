@@ -10,5 +10,6 @@ pub enum Token {
         kind: LiteralKind,
         terminated: bool,
     },
-    WhiteSpace
+    WhiteSpace,
+    Uknown
 }
