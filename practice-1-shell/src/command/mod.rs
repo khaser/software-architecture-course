@@ -1,26 +1,25 @@
-mod env;
 pub mod executable;
-
-use std::process::{Command, ExitCode};
+pub mod scheduler;
 
 use executable::Executable;
-
+use std::process::{Command, ExitCode};
 
 pub struct Exit {
     process: Command,
 }
 
 impl Executable for Exit {
-    fn execute(&self, env: env::Env) -> ExitCode {
+    fn execute(&self) -> ExitCode {
         todo!()
     }
 }
+
 pub struct Cat {
     process: Command,
 }
 
 impl Executable for Cat {
-    fn execute(&self, env: env::Env) -> ExitCode {
+    fn execute(&self) -> ExitCode {
         todo!()
     }
 }
@@ -30,7 +29,7 @@ pub struct Echo {
 }
 
 impl Executable for Echo {
-    fn execute(&self, env: env::Env) -> ExitCode {
+    fn execute(&self) -> ExitCode {
         todo!()
     }
 }
@@ -40,7 +39,7 @@ pub struct Wc {
 }
 
 impl Executable for Wc {
-    fn execute(&self, env: env::Env) -> ExitCode {
+    fn execute(&self) -> ExitCode {
         todo!()
     }
 }
@@ -50,7 +49,7 @@ pub struct Pwd {
 }
 
 impl Executable for Pwd {
-    fn execute(&self, env: env::Env) -> ExitCode {
+    fn execute(&self) -> ExitCode {
         todo!()
     }
 }
@@ -60,7 +59,7 @@ pub struct SetEnvVar {
 }
 
 impl Executable for SetEnvVar {
-    fn execute(&self, env: env::Env) -> ExitCode {
+    fn execute(&self) -> ExitCode {
         todo!()
     }
 }
@@ -70,7 +69,7 @@ pub struct External {
 }
 
 impl Executable for External {
-    fn execute(&self, env: env::Env) -> ExitCode {
+    fn execute(&self) -> ExitCode {
         todo!()
     }
 }
