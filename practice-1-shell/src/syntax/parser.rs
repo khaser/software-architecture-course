@@ -38,7 +38,7 @@ impl<'a, 'b> Parser<'a> {
                 terminated,
             } => {
                 if !terminated {
-                    Err("Unterminated literal".to_string())
+                    Err(format!("Unterminated literal {}", content))
                 } else {
                     let str = Parser::expanse_string(*kind, content.clone());
                     Ok(str)
@@ -79,19 +79,20 @@ impl<'a, 'b> Parser<'a> {
                 Ok(match command.as_str() {
                     "echo" => CommandUnitKind::Echo(args),
                     "wc" => CommandUnitKind::Wc(args),
-                    "pwd" => CommandUnitKind::Pwd(args),
+                    "pwd" => CommandUnitKind::Pwd,
                     "cat" => CommandUnitKind::Cat(args),
                     "exit" => CommandUnitKind::Exit,
                     _ => CommandUnitKind::External(command, args),
                 })
             }
-            None => return Err("No commands".to_string()),
+            None => return Err("Zero command arguments".to_string()),
         }
     }
 
-    pub fn parse(&mut self, tokens: Vec<Token>) -> Result<Vec<CommandUnitKind>, String> {
-        let splitted = self.parse_commands(&tokens);
-        let expansioned = self.expanse(splitted)?;
+    pub fn parse(self, tokens: Vec<Token>) -> Result<Vec<CommandUnitKind>, String> {
+        let mut parser = self;
+        let splitted = parser.parse_commands(&tokens);
+        let expansioned = parser.expanse(splitted)?;
         expansioned.into_iter().map(Parser::parse_command).collect()
     }
 }

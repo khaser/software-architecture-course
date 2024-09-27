@@ -21,7 +21,7 @@ impl Scheduler {
             CommandUnitKind::Cat(args) => self.cat(&args),
             CommandUnitKind::Echo(args) => self.echo(&args),
             CommandUnitKind::Wc(args) => self.wc(&args),
-            CommandUnitKind::Pwd(args) => self.pwd(&args),
+            CommandUnitKind::Pwd => self.pwd(),
             CommandUnitKind::Exit => self.exit(),
             CommandUnitKind::External(name, args) => unimplemented!(),
         }]
@@ -32,7 +32,7 @@ impl Scheduler {
         ExitCode::SUCCESS
     }
 
-    fn pwd(&self, _args: &Args) -> ExitCode {
+    fn pwd(&self) -> ExitCode {
         match current_dir() {
             Ok(path) => {
                 println!("{}", path.display());
