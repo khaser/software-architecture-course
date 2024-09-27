@@ -29,34 +29,65 @@ impl<'a, 'b> Parser<'a> {
         }
     }
 
+    fn token_to_string(token: &Token) -> Result<String, String> {
+        match token {
+            Token::String(str) => Ok(str.clone()),
+            t @ Token::Literal {
+                content,
+                kind,
+                terminated,
+            } => {
+                if !terminated {
+                    Err("Unterminated literal".to_string())
+                } else {
+                    let str = Parser::expanse_string(*kind, content.clone());
+                    Ok(str)
+                }
+            }
+            Token::WhiteSpace => todo!(),
+            t @ _ => Err(format!("Unexpected token: {:?}", t)),
+        }
+    }
+
+
     fn expanse(
         &mut self,
         tokens: Split<'b, Token, impl FnMut(&'_ Token) -> bool>,
     ) -> Result<Vec<Vec<String>>, String> {
         tokens
             .map(|tokens| {
-                tokens
-                    .iter()
-                    .map(|token| match token {
-                        Token::String(str) => Ok(str.clone()),
-                        t @ Token::Literal {
-                            content,
-                            kind,
-                            terminated,
-                        } => {
-                            if !terminated {
-                                Err("Unterminated literal".to_string())
-                            } else {
-                                let str = Parser::expanse_string(*kind, content.clone());
-                                Ok(str)
-                            }
-                        }
-                        Token::WhiteSpace => todo!(),
-                        t @ _ => Err(format!("Unexpected token: {:?}", t)),
-                    })
-                    .collect()
+                let mut command_tokens = Vec::new();
+                for token in tokens {
+                    if let Token::WhiteSpace = token {
+                        continue;
+                    }
+                    match Parser::token_to_string(token) {
+                        Ok(token) => command_tokens.push(token),
+                        Err(err) => return Err(err),
+                    }
+                }
+                Ok(command_tokens)
             })
             .collect()
+    }
+
+    fn parse_command(command_tokens: Vec<String>) -> Result<CommandUnitKind, String> {
+        let mut iter = command_tokens.into_iter();
+        let command = iter.next();
+        match command {
+            Some(command) => {
+                let args = iter.collect();
+                Ok(match command.as_str() {
+                    "echo" => CommandUnitKind::Echo(args),
+                    "wc" => CommandUnitKind::Wc(args),
+                    "pwd" => CommandUnitKind::Pwd(args),
+                    "cat" => CommandUnitKind::Cat(args),
+                    "exit" => CommandUnitKind::Exit,
+                    _ => CommandUnitKind::External(command, args),
+                })
+            }
+            None => return Err("No commands".to_string()),
+        }
     }
 
     pub fn parse(&mut self, tokens: Vec<Token>) -> Result<Vec<CommandUnitKind>, String> {
@@ -64,24 +95,9 @@ impl<'a, 'b> Parser<'a> {
         let expansioned = self.expanse(splitted)?;
         expansioned
             .into_iter()
-            .map(|command_tokens| {
-                let mut iter = command_tokens.into_iter();
-                let command = iter.next();
-                match command {
-                    Some(command) => {
-                        let args = iter.collect();
-                        Ok(match command.as_str() {
-                            "echo" => CommandUnitKind::Echo(args),
-                            "wc" => CommandUnitKind::Wc(args),
-                            "pwd" => CommandUnitKind::Pwd(args),
-                            "cat" => CommandUnitKind::Cat(args),
-                            "exit" => CommandUnitKind::Exit,
-                            _ => CommandUnitKind::External(command, args),
-                        })
-                    }
-                    None => return Err("No commands".to_string()),
-                }
-            })
+            .map(Parser::parse_command)
             .collect()
     }
 }
+
+
