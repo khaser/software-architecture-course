@@ -83,14 +83,14 @@ impl Lexer<'_> {
 
     fn is_id_start(c: char) -> bool {
         match c {
-            'a'..'z' | 'A'..'Z' | '_' => true,
+            'a'..='z' | 'A'..='Z' | '_' => true,
             _ => false,
         }
     }
 
     fn is_id_continue(c: char) -> bool {
         match c {
-            'a'..'z' | 'A'..'Z' | '_' | '0'..'9' => true,
+            'a'..='z' | 'A'..='Z' | '_' | '0'..='9' => true,
             _ => false,
         }
     }
