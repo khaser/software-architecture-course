@@ -34,19 +34,27 @@
         '';
       });
     in {
-      devShell = pkgs.mkShell {
-        name = "rust-vim";
+      devShells = rec {
 
-        buildInputs = with pkgs; [
-          rust-configured-vim
-          rustc
-          cargo
-          rustfmt
-          clippy
-          rust-analyzer
-        ];
+        minimal = pkgs.mkShell {
+          name = "rust";
+          buildInputs = with pkgs; [
+            rustc
+            cargo
+            rustfmt
+            clippy
+            rust-analyzer
+          ];
+          RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
+        };
 
-        RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
+        khaser = pkgs.mkShell {
+          name = "rust-vim";
+          buildInputs = minimal.buildInputs ++ [rust-configured-vim];
+          RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
+        };
+
+        default = minimal;
       };
     });
 }
