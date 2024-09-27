@@ -81,16 +81,9 @@ impl Lexer<'_> {
         )
     }
 
-    fn is_id_start(c: char) -> bool {
+    fn is_correct_symbol(c: char) -> bool {
         match c {
-            'a'..='z' | 'A'..='Z' | '_' => true,
-            _ => false,
-        }
-    }
-
-    fn is_id_continue(c: char) -> bool {
-        match c {
-            'a'..='z' | 'A'..='Z' | '_' | '0'..='9' => true,
+            'a'..='z' | 'A'..='Z' | '_' | '0'..='9' | '/' | '-' => true,
             _ => false,
         }
     }
@@ -122,10 +115,10 @@ impl Lexer<'_> {
                 self.eat_while(Self::is_whitespace);
                 Token::WhiteSpace
             }
-            c if Self::is_id_start(c) => {
+            c if Self::is_correct_symbol(c) => {
                 let pos = self.pos_within_token() - 1;
-                self.eat_while(Self::is_id_continue);
-                Token::Ident(self.substr_from(pos))
+                self.eat_while(Self::is_correct_symbol);
+                Token::String(self.substr_from(pos))
             }
             _ => Token::Uknown,
         };

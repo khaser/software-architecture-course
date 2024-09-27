@@ -9,7 +9,7 @@ fn lexer_smoke_test() {
     let tokens = lexer.tokenize();
     assert_eq!(
         vec![
-            Token::Ident(String::from("echo")),
+            Token::String(String::from("echo")),
             Token::WhiteSpace,
             Token::Literal {
                 content: String::from("example.txt"),
@@ -19,7 +19,7 @@ fn lexer_smoke_test() {
             Token::WhiteSpace,
             Token::Pipe,
             Token::WhiteSpace,
-            Token::Ident(String::from("wc"))
+            Token::String(String::from("wc"))
         ],
         tokens
     );
@@ -31,7 +31,7 @@ fn lexer_symbols_in_qoutes_test() {
     let tokens = lexer.tokenize();
     assert_eq!(
         vec![
-            Token::Ident(String::from("echo")),
+            Token::String(String::from("echo")),
             Token::WhiteSpace,
             Token::Literal {
                 content: String::from("\" |"),
@@ -49,7 +49,7 @@ fn lexer_unterminated_string_test() {
     let tokens = lexer.tokenize();
     assert_eq!(
         vec![
-            Token::Ident(String::from("echo")),
+            Token::String(String::from("echo")),
             Token::WhiteSpace,
             Token::Literal {
                 content: String::from("some string"),

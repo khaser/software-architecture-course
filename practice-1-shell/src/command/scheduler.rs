@@ -22,6 +22,8 @@ impl Scheduler {
             CommandUnitKind::Echo(args) => self.echo(&args),
             CommandUnitKind::Wc(args) => self.wc(&args),
             CommandUnitKind::Pwd(args) => self.pwd(&args),
+            CommandUnitKind::Exit => todo!(),
+            CommandUnitKind::External(name, args) => unimplemented!(),
         }]
     }
 

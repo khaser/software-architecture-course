@@ -19,11 +19,11 @@ fn main() {
             break;
         }
 
-        // TODO: put cmd into lexer
         let lexer = Lexer::new(&cmd);
         let mut parser = Parser::new(&env);
         let mut sched = Scheduler::new();
-        sched.run(parser.parse(lexer.tokenize()));
+        let commands = parser.parse(lexer.tokenize());
+        sched.run(commands.unwrap()); //TODO(kirill-mitkin): remove unwrap
         if sched.should_terminate {
             print!("Bye!");
             break;

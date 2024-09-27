@@ -1,4 +1,4 @@
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum LiteralKind {
     SingleQuoted,
     DoubleQuoted,
@@ -7,7 +7,7 @@ pub enum LiteralKind {
 #[derive(PartialEq, Debug)]
 pub enum Token {
     Pipe,
-    Ident(String),
+    String(String),
     Literal {
         content: String,
         kind: LiteralKind,

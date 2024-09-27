@@ -5,6 +5,6 @@ pub enum CommandUnitKind {
     Echo(Args),
     Wc(Args),
     Pwd(Args),
-    // SetEnvVar(String, String)
-    // External(Args)
+    Exit,
+    External(String, Args), // SetEnvVar(String, String)
 }
