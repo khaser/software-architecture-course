@@ -1,7 +1,7 @@
 mod command;
+mod cu_kind;
 mod env;
 mod syntax;
-mod cu_kind;
 
 use command::scheduler::Scheduler;
 use env::Env;
@@ -10,20 +10,23 @@ use syntax::lexer::Lexer;
 use syntax::parser::Parser;
 
 fn main() {
-    let env = Env::new;
+    let env = Env::new();
 
     loop {
-        print!("r-shell ~ ");
+        print!("rush ~ ");
         let mut cmd = String::new();
         if io::stdin().read_line(&mut cmd).is_err() {
             break;
         }
 
         // TODO: put cmd into lexer
-        // let lexer = Lexer {};
-        let env = Env::new();
-        let parser = Parser::new(&env);
-        let sched = Scheduler {};
+        let lexer = Lexer::new(&cmd);
+        let mut parser = Parser::new(&env);
+        let mut sched = Scheduler::new();
+        sched.run(parser.parse(lexer.tokenize()));
+        if sched.should_terminate {
+            print!("Bye!");
+            break;
+        }
     }
-    println!("Hello, world!");
 }
