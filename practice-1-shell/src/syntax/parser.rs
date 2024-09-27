@@ -49,7 +49,6 @@ impl<'a, 'b> Parser<'a> {
         }
     }
 
-
     fn expanse(
         &mut self,
         tokens: Split<'b, Token, impl FnMut(&'_ Token) -> bool>,
@@ -93,11 +92,6 @@ impl<'a, 'b> Parser<'a> {
     pub fn parse(&mut self, tokens: Vec<Token>) -> Result<Vec<CommandUnitKind>, String> {
         let splitted = self.parse_commands(&tokens);
         let expansioned = self.expanse(splitted)?;
-        expansioned
-            .into_iter()
-            .map(Parser::parse_command)
-            .collect()
+        expansioned.into_iter().map(Parser::parse_command).collect()
     }
 }
-
-

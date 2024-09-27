@@ -6,6 +6,7 @@ mod syntax;
 use command::scheduler::Scheduler;
 use env::Env;
 use std::io;
+use std::io::Write;
 use syntax::lexer::Lexer;
 use syntax::parser::Parser;
 
@@ -14,6 +15,7 @@ fn main() {
 
     loop {
         print!("rush ~ ");
+        io::stdout().flush().unwrap();
         let mut cmd = String::new();
         if io::stdin().read_line(&mut cmd).is_err() {
             break;
@@ -25,7 +27,7 @@ fn main() {
         let commands = parser.parse(lexer.tokenize());
         sched.run(commands.unwrap()); //TODO(kirill-mitkin): remove unwrap
         if sched.should_terminate {
-            print!("Bye!");
+            println!("Bye!");
             break;
         }
     }

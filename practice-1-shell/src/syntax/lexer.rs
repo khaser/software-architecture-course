@@ -83,7 +83,7 @@ impl Lexer<'_> {
 
     fn is_correct_symbol(c: char) -> bool {
         match c {
-            'a'..='z' | 'A'..='Z' | '_' | '0'..='9' | '/' | '-' => true,
+            'a'..='z' | 'A'..='Z' | '_' | '0'..='9' | '/' | '-' | '.' => true,
             _ => false,
         }
     }
