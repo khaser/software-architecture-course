@@ -1,8 +1,8 @@
 use lexer::Lexer;
-use parser::Parser;
+use parser::{PResult, Parser};
 use token::Token;
 
-use crate::{command::CommandUnit, cu_kind::CommandUnitKind, env::Env};
+use crate::{cu_kind::CommandUnitKind, env::Env};
 
 use super::*;
 
@@ -64,7 +64,7 @@ fn lexer_unterminated_string_test() {
     )
 }
 
-fn parser_test(tokens: Vec<Token>, expected: Result<Vec<CommandUnitKind>, String>) {
+fn parser_test(tokens: Vec<Token>, expected: PResult<Vec<CommandUnitKind>>) {
     let env = Env::new();
     let parser = Parser::new(&env);
     let commands = parser.parse(tokens);
@@ -94,17 +94,44 @@ fn parser_smoke_test() {
     )
 }
 
+#[test]
 fn parser_unterminated_string_test() {
+    let content = String::from("some string");
     parser_test(
         vec![
             Token::String(String::from("echo")),
             Token::WhiteSpace,
             Token::Literal {
-                content: String::from("some string"),
+                content: content.clone(),
                 kind: token::LiteralKind::DoubleQuoted,
                 terminated: false,
             },
         ],
-        Err("Unterminated literal some string".to_string()),
+        Err(parser::ParserError::UnterminatedLiteral(content)),
     );
+}
+
+#[test]
+fn parser_zero_command_test() {
+    let content = String::from("some string");
+    parser_test(
+        vec![
+            Token::WhiteSpace,
+            Token::Pipe,
+            Token::Literal {
+                content: content.clone(),
+                kind: token::LiteralKind::DoubleQuoted,
+                terminated: true,
+            },
+        ],
+        Err(parser::ParserError::ZeroCommandArgs),
+    );
+}
+
+#[test]
+fn parser_external_command_test() {
+    parser_test(
+        vec![Token::String(String::from("ls"))],
+        Ok(vec![CommandUnitKind::External("ls".to_string(), vec![])])
+    )
 }

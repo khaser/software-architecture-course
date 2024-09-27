@@ -1,4 +1,4 @@
-use std::slice::Split;
+use std::{fmt, slice::Split};
 
 use crate::{cu_kind::CommandUnitKind, env::Env};
 
@@ -7,6 +7,25 @@ use super::token::{LiteralKind, Token};
 pub struct Parser<'a> {
     env: &'a Env,
 }
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum ParserError {
+    UnterminatedLiteral(String),
+    UnexpectedToken(String),
+    ZeroCommandArgs,
+}
+
+impl fmt::Display for ParserError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ParserError::UnterminatedLiteral(lit) => write!(f, "Unterminated literal: {}", lit),
+            ParserError::UnexpectedToken(tok) => write!(f, "Unexpected token: {}", tok),
+            ParserError::ZeroCommandArgs => write!(f, "Zero command args"),
+        }
+    }
+}
+
+pub type PResult<T> = Result<T, ParserError>;
 
 impl<'a, 'b> Parser<'a> {
     pub fn new(env: &'a Env) -> Self {
@@ -29,30 +48,29 @@ impl<'a, 'b> Parser<'a> {
         }
     }
 
-    fn token_to_string(token: &Token) -> Result<String, String> {
+    fn token_to_string(token: &Token) -> PResult<String> {
         match token {
             Token::String(str) => Ok(str.clone()),
-            t @ Token::Literal {
+            Token::Literal {
                 content,
                 kind,
                 terminated,
             } => {
                 if !terminated {
-                    Err(format!("Unterminated literal {}", content))
+                    Err(ParserError::UnterminatedLiteral(content.clone()))
                 } else {
                     let str = Parser::expanse_string(*kind, content.clone());
                     Ok(str)
                 }
             }
-            Token::WhiteSpace => todo!(),
-            t @ _ => Err(format!("Unexpected token: {:?}", t)),
+            t @ _ => Err(ParserError::UnexpectedToken(format!("{:?}", t))),
         }
     }
 
     fn expanse(
         &mut self,
         tokens: Split<'b, Token, impl FnMut(&'_ Token) -> bool>,
-    ) -> Result<Vec<Vec<String>>, String> {
+    ) -> PResult<Vec<Vec<String>>> {
         tokens
             .map(|tokens| {
                 let mut command_tokens = Vec::new();
@@ -70,7 +88,7 @@ impl<'a, 'b> Parser<'a> {
             .collect()
     }
 
-    fn parse_command(command_tokens: Vec<String>) -> Result<CommandUnitKind, String> {
+    fn parse_command(command_tokens: Vec<String>) -> PResult<CommandUnitKind> {
         let mut iter = command_tokens.into_iter();
         let command = iter.next();
         match command {
@@ -85,11 +103,11 @@ impl<'a, 'b> Parser<'a> {
                     _ => CommandUnitKind::External(command, args),
                 })
             }
-            None => return Err("Zero command arguments".to_string()),
+            None => return Err(ParserError::ZeroCommandArgs),
         }
     }
 
-    pub fn parse(self, tokens: Vec<Token>) -> Result<Vec<CommandUnitKind>, String> {
+    pub fn parse(self, tokens: Vec<Token>) -> PResult<Vec<CommandUnitKind>> {
         let mut parser = self;
         let splitted = parser.parse_commands(&tokens);
         let expansioned = parser.expanse(splitted)?;

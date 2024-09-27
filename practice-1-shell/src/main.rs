@@ -22,10 +22,16 @@ fn main() {
         }
 
         let lexer = Lexer::new(&cmd);
-        let mut parser = Parser::new(&env);
+        let parser = Parser::new(&env);
         let mut sched = Scheduler::new();
-        let commands = parser.parse(lexer.tokenize());
-        sched.run(commands.unwrap()); //TODO(kirill-mitkin): remove unwrap
+        let commands = match parser.parse(lexer.tokenize()) {
+            Ok(c) => c,
+            Err(parse_error) => {
+                eprintln!("{}", parse_error);
+                continue;
+            },
+        };
+        sched.run(commands);
         if sched.should_terminate {
             println!("Bye!");
             break;
