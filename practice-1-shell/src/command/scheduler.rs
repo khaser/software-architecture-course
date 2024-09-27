@@ -73,7 +73,11 @@ impl Scheduler {
             match read_to_string(filename) {
                 Ok(file_content) => {
                     bytes += file_content.len();
-                    words += file_content.split(&[' ', '\n']).count() - 1;
+                    words += file_content
+                        .split(&[' ', '\n'])
+                        .into_iter()
+                        .filter(|x| !x.is_empty())
+                        .count();
                     lines += file_content.split('\n').count() - 1;
                 }
                 Err(err) => {

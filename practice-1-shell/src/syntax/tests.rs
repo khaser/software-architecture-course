@@ -73,33 +73,38 @@ fn parser_test(tokens: Vec<Token>, expected: Result<Vec<CommandUnitKind>, String
 
 #[test]
 fn parser_smoke_test() {
-    parser_test( vec![
-        Token::String(String::from("cat")),
-        Token::WhiteSpace,
-        Token::Literal {
-            content: String::from("example.txt"),
-            kind: token::LiteralKind::SingleQuoted,
-            terminated: true,
-        },
-        Token::WhiteSpace,
-        Token::Pipe,
-        Token::WhiteSpace,
-        Token::String(String::from("wc")),
-    ], Ok(vec![
-        CommandUnitKind::Cat(vec!["example.txt".to_string()]),
-        CommandUnitKind::Wc(vec![])
-    ]))
+    parser_test(
+        vec![
+            Token::String(String::from("cat")),
+            Token::WhiteSpace,
+            Token::Literal {
+                content: String::from("example.txt"),
+                kind: token::LiteralKind::SingleQuoted,
+                terminated: true,
+            },
+            Token::WhiteSpace,
+            Token::Pipe,
+            Token::WhiteSpace,
+            Token::String(String::from("wc")),
+        ],
+        Ok(vec![
+            CommandUnitKind::Cat(vec!["example.txt".to_string()]),
+            CommandUnitKind::Wc(vec![]),
+        ]),
+    )
 }
 
 fn parser_unterminated_string_test() {
-    parser_test(vec![
-        Token::String(String::from("echo")),
-        Token::WhiteSpace,
-        Token::Literal {
-            content: String::from("some string"),
-            kind: token::LiteralKind::DoubleQuoted,
-            terminated: false
-        }
-    ],
-    Err("Unterminated literal some string".to_string()));
+    parser_test(
+        vec![
+            Token::String(String::from("echo")),
+            Token::WhiteSpace,
+            Token::Literal {
+                content: String::from("some string"),
+                kind: token::LiteralKind::DoubleQuoted,
+                terminated: false,
+            },
+        ],
+        Err("Unterminated literal some string".to_string()),
+    );
 }
