@@ -5,17 +5,17 @@ pub struct Env {
 }
 
 impl Env {
+    pub fn new() -> Self {
+        Env {
+            vars: HashMap::new(),
+        }
+    }
+
     pub fn get(var: String) -> String {
         todo!()
     }
 
     pub fn set(var: String, val: String) {
         todo!()
-    }
-
-    pub fn new(&self) -> Self {
-        Env {
-            vars: HashMap::new(),
-        }
     }
 }

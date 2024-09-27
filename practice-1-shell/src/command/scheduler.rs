@@ -1,11 +1,12 @@
 use std::process::ExitCode;
 
-use super::executable::Executable;
+use super::CommandUnitKind;
+
 
 pub struct Scheduler {}
 
 impl Scheduler {
-    pub fn run(commands: Vec<Box<dyn Executable>>) -> Vec<ExitCode> {
+    pub fn run(commands: Vec<CommandUnitKind>) -> Vec<ExitCode> {
         todo!()
     }
 }

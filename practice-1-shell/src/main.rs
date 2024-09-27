@@ -1,6 +1,7 @@
 mod command;
 mod env;
 mod syntax;
+mod cu_kind;
 
 use command::scheduler::Scheduler;
 use env::Env;
@@ -20,7 +21,8 @@ fn main() {
 
         // TODO: put cmd into lexer
         // let lexer = Lexer {};
-        let parser = Parser {};
+        let env = Env::new();
+        let parser = Parser::new(&env);
         let sched = Scheduler {};
     }
     println!("Hello, world!");
