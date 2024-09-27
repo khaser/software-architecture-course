@@ -7,6 +7,7 @@ use command::scheduler::Scheduler;
 use env::Env;
 use std::io;
 use std::io::Write;
+use std::result::Result;
 use syntax::lexer::Lexer;
 use syntax::parser::Parser;
 
@@ -29,9 +30,11 @@ fn main() {
             Err(parse_error) => {
                 eprintln!("{}", parse_error);
                 continue;
-            },
+            }
         };
-        sched.run(commands);
+        if let Err(e) = &sched.run(commands) {
+            eprintln!("{}", &e);
+        }
         if sched.should_terminate {
             println!("Bye!");
             break;

@@ -132,6 +132,6 @@ fn parser_zero_command_test() {
 fn parser_external_command_test() {
     parser_test(
         vec![Token::String(String::from("ls"))],
-        Ok(vec![CommandUnitKind::External("ls".to_string(), vec![])])
+        Ok(vec![CommandUnitKind::External("ls".to_string(), vec![])]),
     )
 }

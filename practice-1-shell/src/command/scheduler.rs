@@ -1,12 +1,18 @@
 use std::env::current_dir;
 use std::fs::read_to_string;
-use std::process::ExitCode;
+use std::io::Result;
+use std::process::Command;
 
 use crate::cu_kind::Args;
 use crate::cu_kind::CommandUnitKind;
 
 pub struct Scheduler {
     pub should_terminate: bool,
+}
+
+pub enum ExitCode {
+    Success,
+    Failure,
 }
 
 impl Scheduler {
@@ -16,77 +22,65 @@ impl Scheduler {
         }
     }
 
-    pub fn run(&mut self, commands: Vec<CommandUnitKind>) -> Vec<ExitCode> {
-        vec![match commands.into_iter().next().unwrap() {
-            CommandUnitKind::Cat(args) => self.cat(&args),
-            CommandUnitKind::Echo(args) => self.echo(&args),
-            CommandUnitKind::Wc(args) => self.wc(&args),
-            CommandUnitKind::Pwd => self.pwd(),
-            CommandUnitKind::Exit => self.exit(),
-            CommandUnitKind::External(name, args) => unimplemented!(),
-        }]
+    pub fn run(&mut self, commands: Vec<CommandUnitKind>) -> Result<Vec<ExitCode>> {
+        Ok(vec![match commands.into_iter().next().unwrap() {
+            CommandUnitKind::Cat(args) => self.cat(&args)?,
+            CommandUnitKind::Echo(args) => self.echo(&args)?,
+            CommandUnitKind::Wc(args) => self.wc(&args)?,
+            CommandUnitKind::Pwd => self.pwd()?,
+            CommandUnitKind::Exit => self.exit()?,
+            CommandUnitKind::External(name, args) => self.run_external(name, args)?,
+        }])
     }
 
-    fn exit(&mut self) -> ExitCode {
+    fn exit(&mut self) -> Result<ExitCode> {
         self.should_terminate = true;
-        ExitCode::SUCCESS
+        Ok(ExitCode::Success)
     }
 
-    fn pwd(&self) -> ExitCode {
-        match current_dir() {
-            Ok(path) => {
-                println!("{}", path.display());
-                ExitCode::SUCCESS
-            }
-            Err(err) => {
-                eprintln!("{}", err);
-                ExitCode::FAILURE
-            }
-        }
+    fn pwd(&self) -> Result<ExitCode> {
+        println!("{}", current_dir()?.display());
+        Ok(ExitCode::Success)
     }
 
-    fn echo(&self, args: &Args) -> ExitCode {
+    fn echo(&self, args: &Args) -> Result<ExitCode> {
         println!("{}", args.join(" "));
-        ExitCode::SUCCESS
+        Ok(ExitCode::Success)
     }
 
-    fn cat(&self, args: &Args) -> ExitCode {
+    fn cat(&self, args: &Args) -> Result<ExitCode> {
         for filename in args {
-            match read_to_string(filename) {
-                Ok(file_content) => {
-                    println!("{}", file_content);
-                }
-                Err(err) => {
-                    eprintln!("{}", err);
-                    return ExitCode::FAILURE;
-                }
-            }
+            println!("{}", read_to_string(filename)?);
         }
-        ExitCode::SUCCESS
+        Ok(ExitCode::Success)
     }
 
-    fn wc(&self, args: &Args) -> ExitCode {
+    fn wc(&self, args: &Args) -> Result<ExitCode> {
         let mut lines = 0usize;
         let mut bytes = 0usize;
         let mut words = 0usize;
         for filename in args {
-            match read_to_string(filename) {
-                Ok(file_content) => {
-                    bytes += file_content.len();
-                    words += file_content
-                        .split(&[' ', '\n'])
-                        .into_iter()
-                        .filter(|x| !x.is_empty())
-                        .count();
-                    lines += file_content.split('\n').count() - 1;
-                }
-                Err(err) => {
-                    eprintln!("{}", err);
-                    return ExitCode::FAILURE;
-                }
-            }
+            let file_content = read_to_string(filename)?;
+            bytes += file_content.len();
+            words += file_content
+                .split(&[' ', '\n'])
+                .into_iter()
+                .filter(|x| !x.is_empty())
+                .count();
+            lines += file_content.split('\n').count() - 1;
         }
         println!("{} {} {}", lines, words, bytes);
-        ExitCode::SUCCESS
+        Ok(ExitCode::Success)
+    }
+
+    fn run_external(&mut self, name: String, args: Args) -> Result<ExitCode> {
+        let mut cmd = Command::new(name);
+        cmd.args(args).status().map(|s| {
+            if s.success() {
+                ExitCode::Success
+            } else {
+                ExitCode::Failure
+            }
+        })
     }
 }

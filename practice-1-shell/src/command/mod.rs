@@ -1,6 +1,6 @@
 pub mod scheduler;
 
-use std::process::{Command, ExitCode};
+use std::process::Command;
 
 use crate::cu_kind::CommandUnitKind;
 
