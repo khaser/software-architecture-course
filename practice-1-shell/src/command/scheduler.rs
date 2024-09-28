@@ -1,9 +1,10 @@
 use std::env::current_dir;
 use std::fs::read_to_string;
 use std::io::Result;
-use std::process::Command;
+use std::vec::IntoIter;
 
 use crate::cu_kind::Args;
+use crate::cu_kind::Command;
 use crate::cu_kind::CommandUnitKind;
 
 pub struct Scheduler {
@@ -22,15 +23,18 @@ impl Scheduler {
         }
     }
 
-    pub fn run(&mut self, commands: Vec<CommandUnitKind>) -> Result<Vec<ExitCode>> {
+    pub fn run(&mut self, commands: Vec<Command>) -> Result<Vec<ExitCode>> {
         Ok(vec![match commands.into_iter().next().unwrap() {
-            CommandUnitKind::Cat(args) => self.cat(&args)?,
-            CommandUnitKind::Echo(args) => self.echo(&args)?,
-            CommandUnitKind::Wc(args) => self.wc(&args)?,
-            CommandUnitKind::Pwd => self.pwd()?,
-            CommandUnitKind::Exit => self.exit()?,
-            CommandUnitKind::External(name, args) => self.run_external(name, args)?,
-            CommandUnitKind::SetEnvVar(_, _) => todo!(),
+            Command(CommandUnitKind::Cat, args) => self.cat(&args)?,
+            Command(CommandUnitKind::Echo, args) => self.echo(&args)?,
+            Command(CommandUnitKind::Wc, args) => self.wc(&args)?,
+            Command(CommandUnitKind::Pwd, _) => self.pwd()?,
+            Command(CommandUnitKind::Exit, _) => self.exit()?,
+            Command(CommandUnitKind::External, args) => {
+                let mut iter = args.into_iter();
+                self.run_external(iter.next().unwrap(), iter)?
+            },
+            Command(CommandUnitKind::SetEnvVar, _) => todo!(),
         }])
     }
 
@@ -74,8 +78,8 @@ impl Scheduler {
         Ok(ExitCode::Success)
     }
 
-    fn run_external(&mut self, name: String, args: Args) -> Result<ExitCode> {
-        let mut cmd = Command::new(name);
+    fn run_external(&mut self, name: String, args: IntoIter<String>) -> Result<ExitCode> {
+        let mut cmd = std::process::Command::new(name);
         cmd.args(args).status().map(|s| {
             if s.success() {
                 ExitCode::Success

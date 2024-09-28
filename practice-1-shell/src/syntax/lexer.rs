@@ -5,6 +5,7 @@ use super::token::{LiteralKind, Token};
 type Pos = usize;
 
 const EOF_CHAR: char = '\0';
+pub const EQ_TOKEN: &str = "=";
 
 pub struct Lexer<'a> {
     input: &'a str,

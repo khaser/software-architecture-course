@@ -2,7 +2,7 @@ use lexer::Lexer;
 use parser::{PResult, Parser};
 use token::Token;
 
-use crate::{cu_kind::CommandUnitKind, env::Env};
+use crate::{cu_kind::{Command, CommandUnitKind}, env::Env};
 
 use super::*;
 
@@ -64,7 +64,7 @@ fn lexer_unterminated_string_test() {
     )
 }
 
-fn parser_test(tokens: Vec<Token>, expected: PResult<Vec<CommandUnitKind>>) {
+fn parser_test(tokens: Vec<Token>, expected: PResult<Vec<Command>>) {
     let env = Env::new();
     let parser = Parser::new(&env);
     let commands = parser.parse(tokens);
@@ -88,8 +88,8 @@ fn parser_smoke_test() {
             Token::Ident(String::from("wc")),
         ],
         Ok(vec![
-            CommandUnitKind::Cat(vec!["example.txt".to_string()]),
-            CommandUnitKind::Wc(vec![]),
+            Command(CommandUnitKind::Cat, vec!["example.txt".to_string()]),
+            Command(CommandUnitKind::Wc, vec![]),
         ]),
     )
 }
@@ -108,7 +108,7 @@ fn parser_set_env_test() {
                 terminated: true,
             },
         ],
-        Ok(vec![CommandUnitKind::SetEnvVar(var, value)]),
+        Ok(vec![Command(CommandUnitKind::SetEnvVar, vec![var, value])]),
     )
 }
 
@@ -148,8 +148,9 @@ fn parser_zero_command_test() {
 
 #[test]
 fn parser_external_command_test() {
+    let ls = String::from("ls");
     parser_test(
-        vec![Token::Ident(String::from("ls"))],
-        Ok(vec![CommandUnitKind::External("ls".to_string(), vec![])]),
+        vec![Token::Ident(ls.clone())],
+        Ok(vec![Command(CommandUnitKind::External, vec![ls])]),
     )
 }
