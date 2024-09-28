@@ -7,7 +7,6 @@ use command::scheduler::Scheduler;
 use env::Env;
 use std::io;
 use std::io::Write;
-use std::result::Result;
 use syntax::lexer::Lexer;
 use syntax::parser::Parser;
 
