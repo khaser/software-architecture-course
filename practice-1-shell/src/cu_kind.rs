@@ -7,5 +7,6 @@ pub enum CommandUnitKind {
     Wc(Args),
     Pwd,
     Exit,
-    External(String, Args), // SetEnvVar(String, String)
+    External(String, Args),
+    SetEnvVar(String, String),
 }

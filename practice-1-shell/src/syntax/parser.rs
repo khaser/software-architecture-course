@@ -1,4 +1,4 @@
-use std::{fmt, slice::Split};
+use std::{fmt, slice::Split, vec::IntoIter};
 
 use crate::{cu_kind::CommandUnitKind, env::Env};
 
@@ -13,6 +13,7 @@ pub enum ParserError {
     UnterminatedLiteral(String),
     UnexpectedToken(String),
     ZeroCommandArgs,
+    SetEnvValueExpected,
 }
 
 impl fmt::Display for ParserError {
@@ -21,11 +22,33 @@ impl fmt::Display for ParserError {
             ParserError::UnterminatedLiteral(lit) => write!(f, "Unterminated literal: {}", lit),
             ParserError::UnexpectedToken(tok) => write!(f, "Unexpected token: {}", tok),
             ParserError::ZeroCommandArgs => write!(f, "Zero command args"),
+            ParserError::SetEnvValueExpected => write!(f, "You cannot set empty value to var"),
         }
     }
 }
 
 pub type PResult<T> = Result<T, ParserError>;
+
+enum ParserToken {
+    String(String),
+    Eq,
+}
+
+impl ParserToken {
+    pub fn to_string(self) -> String {
+        match self {
+            ParserToken::String(str) => str,
+            ParserToken::Eq => "=".to_string(),
+        }
+    }
+
+    pub fn to_command(self) -> PResult<String> {
+        match self {
+            ParserToken::String(str) => Ok(str),
+            ParserToken::Eq => Err(ParserError::UnexpectedToken(format!("{:?}", Token::Eq))),
+        }
+    }
+}
 
 impl<'a, 'b> Parser<'a> {
     pub fn new(env: &'a Env) -> Self {
@@ -48,9 +71,9 @@ impl<'a, 'b> Parser<'a> {
         }
     }
 
-    fn token_to_string(token: &Token) -> PResult<String> {
+    fn token_to_string(token: &Token) -> PResult<ParserToken> {
         match token {
-            Token::String(str) => Ok(str.clone()),
+            Token::Ident(str) => Ok(ParserToken::String(str.clone())),
             Token::Literal {
                 content,
                 kind,
@@ -60,17 +83,23 @@ impl<'a, 'b> Parser<'a> {
                     Err(ParserError::UnterminatedLiteral(content.clone()))
                 } else {
                     let str = Parser::expanse_string(*kind, content.clone());
-                    Ok(str)
+                    Ok(ParserToken::String(str))
                 }
             }
-            t @ _ => Err(ParserError::UnexpectedToken(format!("{:?}", t))),
+            Token::Pipe | Token::WhiteSpace => panic!("There cannot be such token"),
+            Token::Unknown => Err(ParserError::UnexpectedToken(format!(
+                "{:?}",
+                Token::Unknown
+            ))),
+            Token::Eq => Ok(ParserToken::Eq),
+            // t @ _ => ,
         }
     }
 
     fn expanse(
         &mut self,
         tokens: Split<'b, Token, impl FnMut(&'_ Token) -> bool>,
-    ) -> PResult<Vec<Vec<String>>> {
+    ) -> PResult<Vec<Vec<ParserToken>>> {
         tokens
             .map(|tokens| {
                 let mut command_tokens = Vec::new();
@@ -88,20 +117,47 @@ impl<'a, 'b> Parser<'a> {
             .collect()
     }
 
-    fn parse_command(command_tokens: Vec<String>) -> PResult<CommandUnitKind> {
+    fn collect_args(iter: IntoIter<ParserToken>) -> Vec<String> {
+        iter.map(ParserToken::to_string).collect()
+    }
+
+    fn parse_external(
+        mut iter: IntoIter<ParserToken>,
+        first_arg: String,
+    ) -> PResult<CommandUnitKind> {
+        Ok(match iter.next() {
+            Some(ParserToken::Eq) => {
+                if let Some(value) = iter.next() {
+                    CommandUnitKind::SetEnvVar(first_arg, value.to_string())
+                } else {
+                    return Err(ParserError::SetEnvValueExpected);
+                }
+            }
+            Some(ParserToken::String(str)) => {
+                let mut v = Parser::collect_args(iter);
+                let mut c = vec![str];
+                c.append(&mut v);
+                CommandUnitKind::External(first_arg, c)
+            }
+            None => CommandUnitKind::External(first_arg, vec![]),
+        })
+    }
+
+    fn parse_command(command_tokens: Vec<ParserToken>) -> PResult<CommandUnitKind> {
         let mut iter = command_tokens.into_iter();
         let command = iter.next();
         match command {
             Some(command) => {
-                let args = iter.collect();
-                Ok(match command.as_str() {
-                    "echo" => CommandUnitKind::Echo(args),
-                    "wc" => CommandUnitKind::Wc(args),
+                let first_arg = command.to_command()?;
+                let kind = match first_arg.as_str() {
+                    "echo" => CommandUnitKind::Echo(Parser::collect_args(iter)),
+                    "wc" => CommandUnitKind::Wc(Parser::collect_args(iter)),
                     "pwd" => CommandUnitKind::Pwd,
-                    "cat" => CommandUnitKind::Cat(args),
+                    "cat" => CommandUnitKind::Cat(Parser::collect_args(iter)),
                     "exit" => CommandUnitKind::Exit,
-                    _ => CommandUnitKind::External(command, args),
-                })
+                    _ => Parser::parse_external(iter, first_arg)?,
+                };
+                Ok(kind)
             }
             None => return Err(ParserError::ZeroCommandArgs),
         }

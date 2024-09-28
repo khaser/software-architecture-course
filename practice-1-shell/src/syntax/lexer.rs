@@ -81,7 +81,7 @@ impl Lexer<'_> {
         )
     }
 
-    fn is_correct_symbol(c: char) -> bool {
+    fn is_correct_ident(c: char) -> bool {
         match c {
             'a'..='z' | 'A'..='Z' | '_' | '0'..='9' | '/' | '-' | '.' => true,
             _ => false,
@@ -110,17 +110,18 @@ impl Lexer<'_> {
         let token = match c {
             '\'' => self.quoted_string(LiteralKind::SingleQuoted),
             '\"' => self.quoted_string(LiteralKind::DoubleQuoted),
+            '=' => Token::Eq,
             '|' => Token::Pipe,
             c if Self::is_whitespace(c) => {
                 self.eat_while(Self::is_whitespace);
                 Token::WhiteSpace
             }
-            c if Self::is_correct_symbol(c) => {
+            c if Self::is_correct_ident(c) => {
                 let pos = self.pos_within_token() - 1;
-                self.eat_while(Self::is_correct_symbol);
-                Token::String(self.substr_from(pos))
+                self.eat_while(Self::is_correct_ident);
+                Token::Ident(self.substr_from(pos))
             }
-            _ => Token::Uknown,
+            _ => Token::Unknown,
         };
         Some(token)
     }

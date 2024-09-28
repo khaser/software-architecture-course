@@ -30,6 +30,7 @@ impl Scheduler {
             CommandUnitKind::Pwd => self.pwd()?,
             CommandUnitKind::Exit => self.exit()?,
             CommandUnitKind::External(name, args) => self.run_external(name, args)?,
+            CommandUnitKind::SetEnvVar(_, _) => todo!(),
         }])
     }
 

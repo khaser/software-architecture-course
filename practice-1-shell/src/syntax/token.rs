@@ -7,12 +7,13 @@ pub enum LiteralKind {
 #[derive(PartialEq, Debug)]
 pub enum Token {
     Pipe,
-    String(String),
+    Eq,
+    Ident(String),
     Literal {
         content: String,
         kind: LiteralKind,
         terminated: bool,
     },
     WhiteSpace,
-    Uknown,
+    Unknown,
 }
