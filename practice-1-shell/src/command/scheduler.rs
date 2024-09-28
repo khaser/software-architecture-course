@@ -7,8 +7,11 @@ use crate::cu_kind::Args;
 use crate::cu_kind::Command;
 use crate::cu_kind::CommandUnitKind;
 
-pub struct Scheduler {
+use crate::env::Env;
+
+pub struct Scheduler<'a> {
     pub should_terminate: bool,
+    env: &'a mut Env,
 }
 
 pub enum ExitCode {
@@ -16,10 +19,11 @@ pub enum ExitCode {
     Failure,
 }
 
-impl Scheduler {
-    pub fn new() -> Self {
+impl<'a> Scheduler<'a> {
+    pub fn new(env: &'a mut Env) -> Self {
         Scheduler {
             should_terminate: false,
+            env,
         }
     }
 
@@ -33,8 +37,14 @@ impl Scheduler {
             Command(CommandUnitKind::External, args) => {
                 let mut iter = args.into_iter();
                 self.run_external(iter.next().unwrap(), iter)?
-            },
-            Command(CommandUnitKind::SetEnvVar, _) => todo!(),
+            }
+            Command(CommandUnitKind::SetEnvVar, v) => {
+                let mut iter = v.into_iter();
+                let var = iter.next().unwrap();
+                let val = iter.next().unwrap();
+                self.env.insert(var, val);
+                ExitCode::Success
+            }
         }])
     }
 
@@ -80,7 +90,7 @@ impl Scheduler {
 
     fn run_external(&mut self, name: String, args: IntoIter<String>) -> Result<ExitCode> {
         let mut cmd = std::process::Command::new(name);
-        cmd.args(args).status().map(|s| {
+        cmd.args(args).envs(self.env as &Env).status().map(|s| {
             if s.success() {
                 ExitCode::Success
             } else {

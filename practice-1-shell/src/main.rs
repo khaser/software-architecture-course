@@ -12,7 +12,7 @@ use syntax::lexer::Lexer;
 use syntax::parser::Parser;
 
 fn main() {
-    let env = Env::new();
+    let mut env = Env::new();
 
     loop {
         print!("rush ~ ");
@@ -24,7 +24,6 @@ fn main() {
 
         let lexer = Lexer::new(&cmd);
         let parser = Parser::new(&env);
-        let mut sched = Scheduler::new();
         let commands = match parser.parse(lexer.tokenize()) {
             Ok(c) => c,
             Err(parse_error) => {
@@ -32,6 +31,7 @@ fn main() {
                 continue;
             }
         };
+        let mut sched = Scheduler::new(&mut env);
         if let Err(e) = &sched.run(commands) {
             eprintln!("{}", &e);
         }

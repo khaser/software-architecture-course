@@ -1,8 +1,14 @@
 use std::{fmt, slice::Split, vec::IntoIter};
 
-use crate::{cu_kind::{Command, CommandUnitKind}, env::Env};
+use crate::{
+    cu_kind::{Command, CommandUnitKind},
+    env::Env,
+};
 
-use super::{lexer::EQ_TOKEN, token::{LiteralKind, Token}};
+use super::{
+    lexer::EQ_TOKEN,
+    token::{LiteralKind, Token},
+};
 
 pub struct Parser<'a> {
     env: &'a Env,
@@ -31,7 +37,7 @@ pub type PResult<T> = Result<T, ParserError>;
 
 impl<'a, 'b> Parser<'a> {
     pub fn new(env: &'a Env) -> Self {
-        Parser { env: env }
+        Parser { env }
     }
 
     fn parse_commands(
@@ -99,21 +105,18 @@ impl<'a, 'b> Parser<'a> {
         iter.collect()
     }
 
-    fn parse_set_env(
-        var_name: String,
-        mut iter: IntoIter<String>,
-    ) -> PResult<Command> {
+    fn parse_set_env(var_name: String, mut iter: IntoIter<String>) -> PResult<Command> {
         if let Some(value) = iter.next() {
-            Ok(Command(CommandUnitKind::SetEnvVar, vec![var_name, value.to_string()]))
+            Ok(Command(
+                CommandUnitKind::SetEnvVar,
+                vec![var_name, value.to_string()],
+            ))
         } else {
             Err(ParserError::SetEnvValueExpected)
         }
     }
 
-    fn parse_external_command(
-        name: String,
-        mut args: Vec<String>
-    ) -> PResult<Command> {
+    fn parse_external_command(name: String, mut args: Vec<String>) -> PResult<Command> {
         args.insert(0, name);
         Ok(Command(CommandUnitKind::External, args))
     }
@@ -139,8 +142,8 @@ impl<'a, 'b> Parser<'a> {
                 _ => return Parser::parse_external_command(command, args),
             };
             Ok(Command(kind, args))
-        } else { 
-            Err(ParserError::ZeroCommandArgs) 
+        } else {
+            Err(ParserError::ZeroCommandArgs)
         }
     }
 

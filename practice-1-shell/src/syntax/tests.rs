@@ -2,7 +2,10 @@ use lexer::Lexer;
 use parser::{PResult, Parser};
 use token::Token;
 
-use crate::{cu_kind::{Command, CommandUnitKind}, env::Env};
+use crate::{
+    cu_kind::{Command, CommandUnitKind},
+    env::Env,
+};
 
 use super::*;
 

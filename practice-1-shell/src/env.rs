@@ -1,21 +1,23 @@
 use std::collections::HashMap;
 
-pub struct Env {
-    vars: HashMap<String, String>,
-}
+pub type Env = HashMap<String, String>;
 
-impl Env {
-    pub fn new() -> Self {
-        Env {
-            vars: HashMap::new(),
-        }
-    }
+// pub struct Env {
+//     vars: HashMap<String, String>,
+// }
 
-    pub fn get(var: String) -> String {
-        todo!()
-    }
+// impl Env {
+//     pub fn new() -> Self {
+//         Env {
+//             vars: HashMap::new(),
+//         }
+//     }
 
-    pub fn set(var: String, val: String) {
-        todo!()
-    }
-}
+//     pub fn get(&self, var: &String) -> String {
+//         todo!()
+//     }
+
+//     pub fn set(&self, var: String, val: String) {
+//         todo!()
+//     }
+// }
