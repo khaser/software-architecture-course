@@ -3,7 +3,7 @@ mod cu_kind;
 mod env;
 mod syntax;
 
-use command::scheduler::Scheduler;
+use command::scheduler::{RealFsDriver, Scheduler};
 use env::Env;
 use std::io;
 use std::io::Write;
@@ -30,7 +30,8 @@ fn main() {
                 continue;
             }
         };
-        let mut sched = Scheduler::new(&mut env);
+
+        let mut sched = Scheduler::new(&mut env, RealFsDriver {});
         if let Err(e) = &sched.run(commands) {
             eprintln!("{}", &e);
         }

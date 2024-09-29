@@ -1,6 +1,4 @@
-use std::env::current_dir;
-use std::fs::read_to_string;
-use std::io::Result;
+use std::io::{stdout, Result, Write};
 use std::vec::IntoIter;
 
 use crate::cu_kind::Args;
@@ -9,26 +7,55 @@ use crate::cu_kind::CommandUnitKind;
 
 use crate::env::Env;
 
-pub struct Scheduler<'a> {
+pub struct Scheduler<'a, T: SchedulerDriver> {
     pub should_terminate: bool,
     env: &'a mut Env,
+    fs_driver: T,
 }
 
+#[derive(Debug, PartialEq)]
 pub enum ExitCode {
     Success,
     Failure,
 }
 
-impl<'a> Scheduler<'a> {
-    pub fn new(env: &'a mut Env) -> Self {
+// Created for the possibility of unit-testing
+pub trait SchedulerDriver {
+    fn read_to_string(&self, filename: &String) -> Result<String>;
+    fn current_dir(&self) -> Result<String>;
+    fn write_fmt(&mut self, fmt: std::fmt::Arguments<'_>);
+}
+
+pub struct RealFsDriver;
+
+impl SchedulerDriver for RealFsDriver {
+    fn read_to_string(&self, filename: &String) -> Result<String> {
+        std::fs::read_to_string(filename)
+    }
+
+    fn current_dir(&self) -> Result<String> {
+        Ok(std::env::current_dir()?.display().to_string())
+    }
+
+    fn write_fmt(&mut self, fmt: std::fmt::Arguments<'_>) {
+        stdout().write_fmt(fmt).unwrap()
+    }
+}
+
+impl<'a, T> Scheduler<'a, T>
+where
+    T: SchedulerDriver,
+{
+    pub fn new(env: &'a mut Env, fs_driver: T) -> Self {
         Scheduler {
             should_terminate: false,
             env,
+            fs_driver,
         }
     }
 
-    pub fn run(&mut self, commands: Vec<Command>) -> Result<Vec<ExitCode>> {
-        Ok(vec![match commands.into_iter().next().unwrap() {
+    pub fn run(&mut self, commands: Vec<Command>) -> Result<ExitCode> {
+        Ok(match commands.into_iter().next().unwrap() {
             Command(CommandUnitKind::Cat, args) => self.cat(&args)?,
             Command(CommandUnitKind::Echo, args) => self.echo(&args)?,
             Command(CommandUnitKind::Wc, args) => self.wc(&args)?,
@@ -45,7 +72,7 @@ impl<'a> Scheduler<'a> {
                 self.env.insert(var, val);
                 ExitCode::Success
             }
-        }])
+        })
     }
 
     fn exit(&mut self) -> Result<ExitCode> {
@@ -53,29 +80,34 @@ impl<'a> Scheduler<'a> {
         Ok(ExitCode::Success)
     }
 
-    fn pwd(&self) -> Result<ExitCode> {
-        println!("{}", current_dir()?.display());
+    fn pwd(&mut self) -> Result<ExitCode> {
+        write!(
+            &mut self.fs_driver,
+            "{}",
+            std::env::current_dir()?.display()
+        );
         Ok(ExitCode::Success)
     }
 
-    fn echo(&self, args: &Args) -> Result<ExitCode> {
-        println!("{}", args.join(" "));
+    fn echo(&mut self, args: &Args) -> Result<ExitCode> {
+        write!(&mut self.fs_driver, "{}", args.join(" "));
         Ok(ExitCode::Success)
     }
 
-    fn cat(&self, args: &Args) -> Result<ExitCode> {
+    fn cat(&mut self, args: &Args) -> Result<ExitCode> {
         for filename in args {
-            println!("{}", read_to_string(filename)?);
+            let file_content = self.fs_driver.read_to_string(filename)?;
+            write!(&mut self.fs_driver, "{}", file_content);
         }
         Ok(ExitCode::Success)
     }
 
-    fn wc(&self, args: &Args) -> Result<ExitCode> {
+    fn wc(&mut self, args: &Args) -> Result<ExitCode> {
         let mut lines = 0usize;
         let mut bytes = 0usize;
         let mut words = 0usize;
         for filename in args {
-            let file_content = read_to_string(filename)?;
+            let file_content = self.fs_driver.read_to_string(filename)?;
             bytes += file_content.len();
             words += file_content
                 .split(&[' ', '\n'])
@@ -84,11 +116,12 @@ impl<'a> Scheduler<'a> {
                 .count();
             lines += file_content.split('\n').count() - 1;
         }
-        println!("{} {} {}", lines, words, bytes);
+        write!(&mut self.fs_driver, "{} {} {}", lines, words, bytes);
         Ok(ExitCode::Success)
     }
 
     fn run_external(&mut self, name: String, args: IntoIter<String>) -> Result<ExitCode> {
+        // TODO[akhorokhorin]: wrap command execution execution into SchedulerDriver bubble???
         let mut cmd = std::process::Command::new(name);
         cmd.args(args).envs(self.env as &Env).status().map(|s| {
             if s.success() {
