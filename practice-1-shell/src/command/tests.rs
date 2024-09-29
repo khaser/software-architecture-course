@@ -17,3 +17,6 @@ fn scheduler_echo_test() {
     sched.run(vec![Command(CommandUnitKind::Echo, vec![])]);
     assert_eq!(sched.should_terminate, false);
 }
+
+// No unit tests presented for external command calls
+// TODO[akhorokhorin]: implement integrity tests
