@@ -31,7 +31,8 @@ fn main() {
             }
         };
 
-        let mut sched = Scheduler::new(&mut env, RealFsDriver {});
+        let mut sched_driver = RealFsDriver {};
+        let mut sched = Scheduler::new(&mut env, &mut sched_driver);
         if let Err(e) = &sched.run(commands) {
             eprintln!("{}", &e);
         }

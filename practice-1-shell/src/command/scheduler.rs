@@ -10,7 +10,7 @@ use crate::env::Env;
 pub struct Scheduler<'a, T: SchedulerDriver> {
     pub should_terminate: bool,
     env: &'a mut Env,
-    fs_driver: T,
+    fs_driver: &'a mut T,
 }
 
 #[derive(Debug, PartialEq)]
@@ -46,7 +46,7 @@ impl<'a, T> Scheduler<'a, T>
 where
     T: SchedulerDriver,
 {
-    pub fn new(env: &'a mut Env, fs_driver: T) -> Self {
+    pub fn new(env: &'a mut Env, fs_driver: &'a mut T) -> Self {
         Scheduler {
             should_terminate: false,
             env,
@@ -83,21 +83,21 @@ where
     fn pwd(&mut self) -> Result<ExitCode> {
         write!(
             &mut self.fs_driver,
-            "{}",
+            "{}\n",
             std::env::current_dir()?.display()
         );
         Ok(ExitCode::Success)
     }
 
     fn echo(&mut self, args: &Args) -> Result<ExitCode> {
-        write!(&mut self.fs_driver, "{}", args.join(" "));
+        write!(&mut self.fs_driver, "{}\n", args.join(" "));
         Ok(ExitCode::Success)
     }
 
     fn cat(&mut self, args: &Args) -> Result<ExitCode> {
         for filename in args {
             let file_content = self.fs_driver.read_to_string(filename)?;
-            write!(&mut self.fs_driver, "{}", file_content);
+            write!(&mut self.fs_driver, "{}\n", file_content);
         }
         Ok(ExitCode::Success)
     }
@@ -114,9 +114,9 @@ where
                 .into_iter()
                 .filter(|x| !x.is_empty())
                 .count();
-            lines += file_content.split('\n').count() - 1;
+            lines += file_content.split('\n').count();
         }
-        write!(&mut self.fs_driver, "{} {} {}", lines, words, bytes);
+        write!(&mut self.fs_driver, "{} {} {}\n", lines, words, bytes);
         Ok(ExitCode::Success)
     }
 
