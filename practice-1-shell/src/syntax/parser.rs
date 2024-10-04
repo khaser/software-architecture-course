@@ -6,7 +6,7 @@ use crate::{
 };
 
 use super::{
-    lexer::EQ_TOKEN,
+    lexer::{Lexer, EQ_TOKEN},
     token::{LiteralKind, Token},
 };
 
@@ -47,16 +47,17 @@ impl<'a, 'b> Parser<'a> {
         tokens.split(|token| if let Token::Pipe = token { true } else { false })
     }
 
-    fn expanse_string(kind: LiteralKind, content: String) -> String {
+    fn expanse_string(&self, kind: LiteralKind, content: String) -> String {
         match kind {
             super::token::LiteralKind::SingleQuoted => content,
             super::token::LiteralKind::DoubleQuoted => {
-                content // TODO("Changed later")
+                println!("content: {} {}", content, self.env.len());
+                Lexer::expanse(content, &self.env)
             }
         }
     }
 
-    fn token_to_string(token: &Token) -> PResult<String> {
+    fn token_to_string(&self, token: &Token) -> PResult<String> {
         match token {
             Token::Ident(str) => Ok(str.clone()),
             Token::Literal {
@@ -67,7 +68,7 @@ impl<'a, 'b> Parser<'a> {
                 if !terminated {
                     Err(ParserError::UnterminatedLiteral(content.clone()))
                 } else {
-                    let str = Parser::expanse_string(*kind, content.clone());
+                    let str = self.expanse_string(*kind, content.clone());
                     Ok(str)
                 }
             }
@@ -91,7 +92,7 @@ impl<'a, 'b> Parser<'a> {
                     if let Token::WhiteSpace = token {
                         continue;
                     }
-                    match Parser::token_to_string(token) {
+                    match self.token_to_string(token) {
                         Ok(token) => command_tokens.push(token),
                         Err(err) => return Err(err),
                     }
