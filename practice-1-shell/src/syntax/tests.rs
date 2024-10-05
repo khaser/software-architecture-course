@@ -3,7 +3,6 @@ use parser::{PResult, Parser};
 use token::Token;
 
 use crate::{
-    command::scheduler::{self, Scheduler},
     cu_kind::{Command, CommandUnitKind},
     env::Env,
 };

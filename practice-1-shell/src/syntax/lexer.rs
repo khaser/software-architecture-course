@@ -81,11 +81,11 @@ impl Lexer<'_> {
                 _ => (),
             }
         }
-        return Token::Literal {
+        Token::Literal {
             content: self.substr_from(pos),
             kind: lit_kind,
             terminated: false,
-        };
+        }
     }
 
     #[inline]
@@ -109,10 +109,7 @@ impl Lexer<'_> {
     }
 
     fn is_correct_ident(c: char) -> bool {
-        match c {
-            'a'..='z' | 'A'..='Z' | '_' | '0'..='9' | '/' | '-' | '.' => true,
-            _ => false,
-        }
+        matches!(c, 'a'..='z' | 'A'..='Z' | '_' | '0'..='9' | '/' | '-' | '.')
     }
 
     fn is_eof(&self) -> bool {

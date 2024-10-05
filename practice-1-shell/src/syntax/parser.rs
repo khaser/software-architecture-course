@@ -42,9 +42,9 @@ impl<'a, 'b> Parser<'a> {
 
     fn parse_commands(
         &mut self,
-        tokens: &'b Vec<Token>,
+        tokens: &'b [Token],
     ) -> Split<'b, Token, impl FnMut(&'_ Token) -> bool> {
-        tokens.split(|token| if let Token::Pipe = token { true } else { false })
+        tokens.split(|token| matches!(token, Token::Pipe))
     }
 
     fn expanse_string(&self, kind: LiteralKind, content: String) -> String {
@@ -52,7 +52,7 @@ impl<'a, 'b> Parser<'a> {
             super::token::LiteralKind::SingleQuoted => content,
             super::token::LiteralKind::DoubleQuoted => {
                 println!("content: {} {}", content, self.env.len());
-                Lexer::expanse(content, &self.env)
+                Lexer::expanse(content, self.env)
             }
         }
     }

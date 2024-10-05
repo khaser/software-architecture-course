@@ -26,7 +26,7 @@ fn main() {
         let commands = match parser.parse(lexer.tokenize()) {
             Ok(c) => c,
             Err(parse_error) => {
-                eprintln!("{}", parse_error);
+                eprintln!("Error: {}", parse_error);
                 continue;
             }
         };

@@ -15,8 +15,8 @@ pub struct MockFsDriver {
 }
 
 impl SchedulerDriver for MockFsDriver {
-    fn read_to_string(&self, filename: &String) -> Result<String> {
-        match self.dir_content.get(filename.as_str()) {
+    fn read_to_string(&self, filename: &str) -> Result<String> {
+        match self.dir_content.get(filename) {
             Some(file_content) => Ok(file_content.to_string()),
             None => Err(Error::new(ErrorKind::NotFound, "")),
         }
