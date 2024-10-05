@@ -1,3 +1,4 @@
+use super::scheduler::ExitCode::*;
 use super::scheduler::*;
 use crate::cu_kind::*;
 use crate::env::Env;
@@ -39,6 +40,7 @@ fn new_default_mock() -> MockFsDriver {
             ("vfile1", "vcontent1"),
             ("vfile2", "vcontent2"),
             ("singleline_with_3_words", "aba caba daba"),
+            ("compl3X filename", "content"),
         ]),
         output: String::new(),
     }
@@ -51,7 +53,7 @@ fn scheduler_exit_test() {
     let mut sched = Scheduler::new(&mut env, &mut mock);
     assert_eq!(
         sched.run(vec![Command(CommandUnitKind::Exit, vec![])]),
-        vec![ExitCode::Success],
+        vec![Success],
     );
     assert_eq!(sched.should_terminate, true);
 }
@@ -66,7 +68,7 @@ fn scheduler_echo_test() {
             CommandUnitKind::Echo,
             vec!["hello".to_string(), "from echo!".to_string()]
         )]),
-        vec![ExitCode::Success],
+        vec![Success],
     );
     assert_eq!(sched.should_terminate, false);
     assert_eq!(mock.output, "hello from echo!\n");
@@ -82,10 +84,26 @@ fn scheduler_cat_test() {
             CommandUnitKind::Cat,
             vec!["vfile1".to_string(), "vfile2".to_string()]
         )]),
-        vec![ExitCode::Success],
+        vec![Success],
     );
     assert_eq!(sched.should_terminate, false);
     assert_eq!(mock.output, "vcontent1\nvcontent2\n");
+}
+
+#[test]
+fn scheduler_complex_filename_test() {
+    let mut env = Env::new();
+    let mut mock = new_default_mock();
+    let mut sched = Scheduler::new(&mut env, &mut mock);
+    assert_eq!(
+        sched.run(vec![Command(
+            CommandUnitKind::Cat,
+            vec!["compl3X filename".to_string()]
+        )]),
+        vec![Success],
+    );
+    assert_eq!(sched.should_terminate, false);
+    assert_eq!(mock.output, "content\n");
 }
 
 #[test]
@@ -98,10 +116,76 @@ fn scheduler_wc_test() {
             CommandUnitKind::Wc,
             vec!["singleline_with_3_words".to_string()]
         )]),
-        vec![ExitCode::Success],
+        vec![Success],
     );
     assert_eq!(sched.should_terminate, false);
     assert_eq!(mock.output, "1 3 13\n");
+}
+
+#[test]
+fn scheduler_not_existed_file_test() {
+    let mut env = Env::new();
+    let mut mock = new_default_mock();
+    let mut sched = Scheduler::new(&mut env, &mut mock);
+    assert_eq!(
+        sched.run(vec![Command(
+            CommandUnitKind::Cat,
+            vec!["not_existing_filename".to_string()]
+        )]),
+        vec![Failure],
+    );
+    assert_eq!(
+        sched.run(vec![Command(
+            CommandUnitKind::Wc,
+            vec!["not_existing_filename".to_string()]
+        )]),
+        vec![Failure],
+    );
+    assert_eq!(sched.should_terminate, false);
+}
+
+#[test]
+fn scheduler_pipe_cat_test() {
+    let mut env = Env::new();
+    let mut mock = new_default_mock();
+    let mut sched = Scheduler::new(&mut env, &mut mock);
+    assert_eq!(
+        sched.run(vec![
+            Command(
+                CommandUnitKind::Echo,
+                vec!["some\nsearchable\ntext".to_string()],
+            ),
+            Command(CommandUnitKind::Cat, vec![],),
+        ]),
+        vec![Success, Success],
+    );
+    assert_eq!(sched.should_terminate, false);
+    assert_eq!(mock.output, "some\nsearchable\ntext\n\n");
+}
+
+#[test]
+fn scheduler_cat_multiplexing_pipe_and_file_test() {
+    let mut env = Env::new();
+    let mut mock = new_default_mock();
+    let mut sched = Scheduler::new(&mut env, &mut mock);
+    assert_eq!(
+        sched.run(vec![
+            Command(
+                CommandUnitKind::Echo,
+                vec!["some\nsearchable\ntext".to_string()],
+            ),
+            Command(
+                CommandUnitKind::Cat,
+                vec!["vfile1".to_string(), "vfile2".to_string()],
+            ),
+        ]),
+        vec![Success, Success],
+    );
+    assert_eq!(sched.should_terminate, false);
+    assert_eq!(
+        mock.output,
+        "some\nsearchable\ntext\n\nvcontent1\nvcontent2\n"
+    );
 }
 
 // No unit tests presented for external command calls
