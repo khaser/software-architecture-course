@@ -32,7 +32,7 @@ impl<'a> Lexer<'a> {
     }
 
     pub fn expanse(content: String, env: &Env) -> String {
-        let mut new_content : String = String::new();
+        let mut new_content: String = String::new();
         let mut iter = content.chars();
         while let Some(c) = iter.next() {
             if c == DOLLAR_TOKEN {

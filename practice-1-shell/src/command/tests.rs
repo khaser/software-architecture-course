@@ -1,6 +1,7 @@
 use super::scheduler::*;
 use crate::cu_kind::*;
 use crate::env::Env;
+use std::fmt::Write;
 use std::io::{Error, ErrorKind, Result};
 
 use std::collections::HashMap;
@@ -23,9 +24,11 @@ impl SchedulerDriver for MockFsDriver {
     fn current_dir(&self) -> Result<String> {
         Ok(self.cur_dir.to_string())
     }
+}
 
-    fn write_fmt(&mut self, fmt: std::fmt::Arguments<'_>) {
-        let _ = std::fmt::write(&mut self.output, fmt);
+impl Write for MockFsDriver {
+    fn write_str(&mut self, s: &str) -> std::fmt::Result {
+        self.output.write_str(s)
     }
 }
 
@@ -47,10 +50,8 @@ fn scheduler_exit_test() {
     let mut mock = new_default_mock();
     let mut sched = Scheduler::new(&mut env, &mut mock);
     assert_eq!(
-        sched
-            .run(vec![Command(CommandUnitKind::Exit, vec![])])
-            .unwrap(),
-        ExitCode::Success,
+        sched.run(vec![Command(CommandUnitKind::Exit, vec![])]),
+        vec![ExitCode::Success],
     );
     assert_eq!(sched.should_terminate, true);
 }
@@ -61,13 +62,11 @@ fn scheduler_echo_test() {
     let mut mock = new_default_mock();
     let mut sched = Scheduler::new(&mut env, &mut mock);
     assert_eq!(
-        sched
-            .run(vec![Command(
-                CommandUnitKind::Echo,
-                vec!["hello".to_string(), "from echo!".to_string()]
-            )])
-            .unwrap(),
-        ExitCode::Success,
+        sched.run(vec![Command(
+            CommandUnitKind::Echo,
+            vec!["hello".to_string(), "from echo!".to_string()]
+        )]),
+        vec![ExitCode::Success],
     );
     assert_eq!(sched.should_terminate, false);
     assert_eq!(mock.output, "hello from echo!\n");
@@ -79,13 +78,11 @@ fn scheduler_cat_test() {
     let mut mock = new_default_mock();
     let mut sched = Scheduler::new(&mut env, &mut mock);
     assert_eq!(
-        sched
-            .run(vec![Command(
-                CommandUnitKind::Cat,
-                vec!["vfile1".to_string(), "vfile2".to_string()]
-            )])
-            .unwrap(),
-        ExitCode::Success,
+        sched.run(vec![Command(
+            CommandUnitKind::Cat,
+            vec!["vfile1".to_string(), "vfile2".to_string()]
+        )]),
+        vec![ExitCode::Success],
     );
     assert_eq!(sched.should_terminate, false);
     assert_eq!(mock.output, "vcontent1\nvcontent2\n");
@@ -97,13 +94,11 @@ fn scheduler_wc_test() {
     let mut mock = new_default_mock();
     let mut sched = Scheduler::new(&mut env, &mut mock);
     assert_eq!(
-        sched
-            .run(vec![Command(
-                CommandUnitKind::Wc,
-                vec!["singleline_with_3_words".to_string()]
-            )])
-            .unwrap(),
-        ExitCode::Success,
+        sched.run(vec![Command(
+            CommandUnitKind::Wc,
+            vec!["singleline_with_3_words".to_string()]
+        )]),
+        vec![ExitCode::Success],
     );
     assert_eq!(sched.should_terminate, false);
     assert_eq!(mock.output, "1 3 13\n");

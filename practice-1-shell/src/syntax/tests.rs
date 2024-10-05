@@ -3,7 +3,9 @@ use parser::{PResult, Parser};
 use token::Token;
 
 use crate::{
-    command::scheduler::{self, Scheduler}, cu_kind::{Command, CommandUnitKind}, env::Env
+    command::scheduler::{self, Scheduler},
+    cu_kind::{Command, CommandUnitKind},
+    env::Env,
 };
 
 use super::*;
@@ -170,7 +172,10 @@ fn parser_no_var_expanse_test() {
                 terminated: true,
             },
         ],
-        Ok(vec![Command(CommandUnitKind::Echo, vec!["some ".to_string()])]),
+        Ok(vec![Command(
+            CommandUnitKind::Echo,
+            vec!["some ".to_string()],
+        )]),
     );
 }
 
@@ -190,7 +195,10 @@ fn parser_var_expanse() {
             terminated: true,
         },
     ]);
-    assert_eq!(command, Ok(vec![Command(CommandUnitKind::Echo, vec![value])]));
+    assert_eq!(
+        command,
+        Ok(vec![Command(CommandUnitKind::Echo, vec![value])])
+    );
 }
 
 #[test]
@@ -209,7 +217,10 @@ fn parser_no_expanse_in_single() {
             terminated: true,
         },
     ]);
-    assert_eq!(command, Ok(vec![Command(CommandUnitKind::Echo, vec!["$a".to_string()])]));
+    assert_eq!(
+        command,
+        Ok(vec![Command(CommandUnitKind::Echo, vec!["$a".to_string()])])
+    );
 }
 
 #[test]
@@ -231,5 +242,11 @@ fn parser_multiple_expanse() {
             terminated: true,
         },
     ]);
-    assert_eq!(command, Ok(vec![Command(CommandUnitKind::Echo, vec!["val_aval_b val_aval_a val_b".to_string()])]));
+    assert_eq!(
+        command,
+        Ok(vec![Command(
+            CommandUnitKind::Echo,
+            vec!["val_aval_b val_aval_a val_b".to_string()]
+        )])
+    );
 }

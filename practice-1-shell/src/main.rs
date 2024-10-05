@@ -33,9 +33,7 @@ fn main() {
 
         let mut sched_driver = RealFsDriver {};
         let mut sched = Scheduler::new(&mut env, &mut sched_driver);
-        if let Err(e) = &sched.run(commands) {
-            eprintln!("{}", &e);
-        }
+        let _exit_codes = sched.run(commands);
         if sched.should_terminate {
             println!("Bye!");
             break;
