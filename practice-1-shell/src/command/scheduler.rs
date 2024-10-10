@@ -121,7 +121,7 @@ where
                 None => process::Stdio::inherit(),
             })
             .spawn()
-            .expect("failed to execute child");
+            .map_err(ExecError::to)?;
         if let Some(input) = stdin {
             child
                 .stdin
