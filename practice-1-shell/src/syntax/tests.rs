@@ -223,6 +223,24 @@ fn parser_no_expanse_in_single() {
 }
 
 #[test]
+fn parser_ident_expanse() {
+    let var = String::from("a");
+    let value = String::from("test");
+    let mut env = Env::new();
+    env.insert(var, value.clone());
+    let parser = Parser::new(&env);
+    let command = parser.parse(vec![
+        Token::Ident(String::from("echo")),
+        Token::WhiteSpace,
+        Token::Ident("$a".to_string())
+    ]);
+    assert_eq!(
+        command,
+        Ok(vec![Command(CommandUnitKind::Echo, vec![value])])
+    );
+}
+
+#[test]
 fn parser_multiple_expanse() {
     let var_a = String::from("a");
     let var_b = String::from("b");

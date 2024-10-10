@@ -51,7 +51,7 @@ impl<'a, 'b> Parser<'a> {
         match kind {
             super::token::LiteralKind::SingleQuoted => content,
             super::token::LiteralKind::DoubleQuoted => {
-                println!("content: {} {}", content, self.env.len());
+                // println!("content: {} {}", content, self.env.len());
                 Lexer::expanse(content, self.env)
             }
         }
@@ -59,7 +59,8 @@ impl<'a, 'b> Parser<'a> {
 
     fn token_to_string(&self, token: &Token) -> PResult<String> {
         match token {
-            Token::Ident(str) => Ok(str.clone()),
+            Token::Ident(str) => Ok(
+                self.expanse_string(LiteralKind::DoubleQuoted,str.clone())),
             Token::Literal {
                 content,
                 kind,
