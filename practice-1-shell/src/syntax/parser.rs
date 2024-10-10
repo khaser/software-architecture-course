@@ -59,8 +59,7 @@ impl<'a, 'b> Parser<'a> {
 
     fn token_to_string(&self, token: &Token) -> PResult<String> {
         match token {
-            Token::Ident(str) => Ok(
-                self.expanse_string(LiteralKind::DoubleQuoted,str.clone())),
+            Token::Ident(str) => Ok(self.expanse_string(LiteralKind::DoubleQuoted, str.clone())),
             Token::Literal {
                 content,
                 kind,

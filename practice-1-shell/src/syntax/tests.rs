@@ -232,7 +232,7 @@ fn parser_ident_expanse() {
     let command = parser.parse(vec![
         Token::Ident(String::from("echo")),
         Token::WhiteSpace,
-        Token::Ident("$a".to_string())
+        Token::Ident("$a".to_string()),
     ]);
     assert_eq!(
         command,
