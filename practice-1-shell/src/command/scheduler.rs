@@ -1,4 +1,5 @@
 use std::ffi::OsString;
+use std::io::Error as IoError;
 use std::process::{self, Stdio};
 use std::slice::Iter;
 
@@ -18,8 +19,8 @@ pub enum ExitCode {
 
 struct ExecError;
 
-impl ExecError {
-    fn to<Err>(_: Err) -> ExecError {
+impl From<IoError> for ExecError {
+    fn from(_err: IoError) -> Self {
         ExecError {}
     }
 }
@@ -94,15 +95,27 @@ impl<'a> Scheduler<'a> {
         args: Iter<String>,
         stdin: &mut &mut Stdio,
     ) -> ExecResult {
-        let mut cmd = process::Command::new(executable);
+        let mut cmd = process::Command::new(&executable);
         unsafe {
             cmd.args(args)
                 .envs(self.env as &Env)
                 .stdin(std::ptr::read(*stdin as *mut Stdio))
                 .stdout(Stdio::piped());
-            let child = cmd.spawn().map_err(ExecError::to)?;
-            **stdin = child.stdout.unwrap().into();
+            match cmd.spawn() {
+                Ok(child) => {
+                    **stdin = child.stdout.unwrap().into();
+                    Ok(())
+                }
+                Err(err) => {
+                    **stdin = Stdio::null();
+                    eprintln!(
+                        "failed to execute {}: {}",
+                        executable.into_string().unwrap(),
+                        err
+                    );
+                    Err(err.into())
+                }
+            }
         }
-        Ok(())
     }
 }
