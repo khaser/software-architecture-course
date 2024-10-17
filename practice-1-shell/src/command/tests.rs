@@ -1,7 +1,9 @@
 use super::scheduler::ExitCode::*;
 use super::scheduler::*;
-use crate::cu_kind::*;
+
+use crate::cu_kind::Command::*;
 use crate::env::Env;
+
 use std::fmt::Write;
 use std::io::{Error, ErrorKind, Result};
 
@@ -51,10 +53,7 @@ fn scheduler_exit_test() {
     let mut env = Env::new();
     let mut mock = new_default_mock();
     let mut sched = Scheduler::new(&mut env, &mut mock);
-    assert_eq!(
-        sched.run(vec![Command(CommandUnitKind::Exit, vec![])]),
-        vec![Success],
-    );
+    assert_eq!(sched.run(vec![Exit]), vec![Success],);
     assert_eq!(sched.should_terminate, true);
 }
 
@@ -64,10 +63,10 @@ fn scheduler_echo_test() {
     let mut mock = new_default_mock();
     let mut sched = Scheduler::new(&mut env, &mut mock);
     assert_eq!(
-        sched.run(vec![Command(
-            CommandUnitKind::Echo,
-            vec!["hello".to_string(), "from echo!".to_string()]
-        )]),
+        sched.run(vec![Echo(vec![
+            "hello".to_string(),
+            "from echo!".to_string()
+        ])]),
         vec![Success],
     );
     assert_eq!(sched.should_terminate, false);
@@ -80,10 +79,7 @@ fn scheduler_cat_test() {
     let mut mock = new_default_mock();
     let mut sched = Scheduler::new(&mut env, &mut mock);
     assert_eq!(
-        sched.run(vec![Command(
-            CommandUnitKind::Cat,
-            vec!["vfile1".to_string(), "vfile2".to_string()]
-        )]),
+        sched.run(vec![Cat(vec!["vfile1".to_string(), "vfile2".to_string()])]),
         vec![Success],
     );
     assert_eq!(sched.should_terminate, false);
@@ -96,10 +92,7 @@ fn scheduler_complex_filename_test() {
     let mut mock = new_default_mock();
     let mut sched = Scheduler::new(&mut env, &mut mock);
     assert_eq!(
-        sched.run(vec![Command(
-            CommandUnitKind::Cat,
-            vec!["compl3X filename".to_string()]
-        )]),
+        sched.run(vec![Cat(vec!["compl3X filename".to_string()])]),
         vec![Success],
     );
     assert_eq!(sched.should_terminate, false);
@@ -112,10 +105,7 @@ fn scheduler_wc_test() {
     let mut mock = new_default_mock();
     let mut sched = Scheduler::new(&mut env, &mut mock);
     assert_eq!(
-        sched.run(vec![Command(
-            CommandUnitKind::Wc,
-            vec!["singleline_with_3_words".to_string()]
-        )]),
+        sched.run(vec![Wc(vec!["singleline_with_3_words".to_string()])]),
         vec![Success],
     );
     assert_eq!(sched.should_terminate, false);
@@ -128,17 +118,11 @@ fn scheduler_not_existed_file_test() {
     let mut mock = new_default_mock();
     let mut sched = Scheduler::new(&mut env, &mut mock);
     assert_eq!(
-        sched.run(vec![Command(
-            CommandUnitKind::Cat,
-            vec!["not_existing_filename".to_string()]
-        )]),
+        sched.run(vec![Cat(vec!["not_existing_filename".to_string()])]),
         vec![Failure],
     );
     assert_eq!(
-        sched.run(vec![Command(
-            CommandUnitKind::Wc,
-            vec!["not_existing_filename".to_string()]
-        )]),
+        sched.run(vec![Wc(vec!["not_existing_filename".to_string()])]),
         vec![Failure],
     );
     assert_eq!(sched.should_terminate, false);
@@ -151,11 +135,8 @@ fn scheduler_pipe_cat_test() {
     let mut sched = Scheduler::new(&mut env, &mut mock);
     assert_eq!(
         sched.run(vec![
-            Command(
-                CommandUnitKind::Echo,
-                vec!["some\nsearchable\ntext".to_string()],
-            ),
-            Command(CommandUnitKind::Cat, vec![],),
+            Echo(vec!["some\nsearchable\ntext".to_string()],),
+            Cat(vec![],),
         ]),
         vec![Success, Success],
     );
@@ -170,14 +151,8 @@ fn scheduler_cat_multiplexing_pipe_and_file_test() {
     let mut sched = Scheduler::new(&mut env, &mut mock);
     assert_eq!(
         sched.run(vec![
-            Command(
-                CommandUnitKind::Echo,
-                vec!["some\nsearchable\ntext".to_string()],
-            ),
-            Command(
-                CommandUnitKind::Cat,
-                vec!["vfile1".to_string(), "vfile2".to_string()],
-            ),
+            Echo(vec!["some\nsearchable\ntext".to_string()],),
+            Cat(vec!["vfile1".to_string(), "vfile2".to_string()],),
         ]),
         vec![Success, Success],
     );

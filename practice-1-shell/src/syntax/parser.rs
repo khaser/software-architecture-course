@@ -1,9 +1,6 @@
 use std::{fmt, slice::Split, vec::IntoIter};
 
-use crate::{
-    cu_kind::{Command, CommandUnitKind},
-    env::Env,
-};
+use crate::{cu_kind::Command, env::Env};
 
 use super::{
     lexer::{Lexer, EQ_TOKEN},
@@ -108,10 +105,7 @@ impl<'a, 'b> Parser<'a> {
 
     fn parse_set_env(var_name: String, mut iter: IntoIter<String>) -> PResult<Command> {
         if let Some(value) = iter.next() {
-            Ok(Command(
-                CommandUnitKind::SetEnvVar,
-                vec![var_name, value.to_string()],
-            ))
+            Ok(Command::SetEnvVar(var_name, value.to_string()))
         } else {
             Err(ParserError::SetEnvValueExpected)
         }
@@ -119,7 +113,7 @@ impl<'a, 'b> Parser<'a> {
 
     fn parse_external_command(name: String, mut args: Vec<String>) -> PResult<Command> {
         args.insert(0, name);
-        Ok(Command(CommandUnitKind::External, args))
+        Ok(Command::External(args))
     }
 
     fn parse_command(command_tokens: Vec<String>) -> PResult<Command> {
@@ -134,15 +128,14 @@ impl<'a, 'b> Parser<'a> {
         }
         if let Some(command) = command {
             let args = Parser::collect_args(iter);
-            let kind = match command.as_str() {
-                "echo" => CommandUnitKind::Echo,
-                "wc" => CommandUnitKind::Wc,
-                "pwd" => CommandUnitKind::Pwd,
-                "cat" => CommandUnitKind::Cat,
-                "exit" => CommandUnitKind::Exit,
-                _ => return Parser::parse_external_command(command, args),
-            };
-            Ok(Command(kind, args))
+            match command.as_str() {
+                "echo" => Ok(Command::Echo(args)),
+                "wc" => Ok(Command::Wc(args)),
+                "cat" => Ok(Command::Cat(args)),
+                "pwd" => Ok(Command::Pwd),
+                "exit" => Ok(Command::Exit),
+                _ => Parser::parse_external_command(command, args),
+            }
         } else {
             Err(ParserError::ZeroCommandArgs)
         }

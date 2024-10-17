@@ -2,10 +2,7 @@ use lexer::Lexer;
 use parser::{PResult, Parser};
 use token::Token;
 
-use crate::{
-    cu_kind::{Command, CommandUnitKind},
-    env::Env,
-};
+use crate::{cu_kind::Command, env::Env};
 
 use super::*;
 
@@ -91,8 +88,8 @@ fn parser_smoke_test() {
             Token::Ident(String::from("wc")),
         ],
         Ok(vec![
-            Command(CommandUnitKind::Cat, vec!["example.txt".to_string()]),
-            Command(CommandUnitKind::Wc, vec![]),
+            Command::Cat(vec!["example.txt".to_string()]),
+            Command::Wc(vec![]),
         ]),
     )
 }
@@ -111,7 +108,7 @@ fn parser_set_env_test() {
                 terminated: true,
             },
         ],
-        Ok(vec![Command(CommandUnitKind::SetEnvVar, vec![var, value])]),
+        Ok(vec![Command::SetEnvVar(var, value)]),
     )
 }
 
@@ -154,7 +151,7 @@ fn parser_external_command_test() {
     let ls = String::from("ls");
     parser_test(
         vec![Token::Ident(ls.clone())],
-        Ok(vec![Command(CommandUnitKind::External, vec![ls])]),
+        Ok(vec![Command::External(vec![ls])]),
     )
 }
 
@@ -171,10 +168,7 @@ fn parser_no_var_expanse_test() {
                 terminated: true,
             },
         ],
-        Ok(vec![Command(
-            CommandUnitKind::Echo,
-            vec!["some ".to_string()],
-        )]),
+        Ok(vec![Command::Echo(vec!["some ".to_string()])]),
     );
 }
 
@@ -194,10 +188,7 @@ fn parser_var_expanse() {
             terminated: true,
         },
     ]);
-    assert_eq!(
-        command,
-        Ok(vec![Command(CommandUnitKind::Echo, vec![value])])
-    );
+    assert_eq!(command, Ok(vec![Command::Echo(vec![value])]));
 }
 
 #[test]
@@ -216,10 +207,7 @@ fn parser_no_expanse_in_single() {
             terminated: true,
         },
     ]);
-    assert_eq!(
-        command,
-        Ok(vec![Command(CommandUnitKind::Echo, vec!["$a".to_string()])])
-    );
+    assert_eq!(command, Ok(vec![Command::Echo(vec!["$a".to_string()])]));
 }
 
 #[test]
@@ -234,10 +222,7 @@ fn parser_ident_expanse() {
         Token::WhiteSpace,
         Token::Ident("$a".to_string()),
     ]);
-    assert_eq!(
-        command,
-        Ok(vec![Command(CommandUnitKind::Echo, vec![value])])
-    );
+    assert_eq!(command, Ok(vec![Command::Echo(vec![value])]));
 }
 
 #[test]
@@ -261,9 +246,8 @@ fn parser_multiple_expanse() {
     ]);
     assert_eq!(
         command,
-        Ok(vec![Command(
-            CommandUnitKind::Echo,
-            vec!["val_aval_b val_aval_a val_b".to_string()]
-        )])
+        Ok(vec![Command::Echo(vec![
+            "val_aval_b val_aval_a val_b".to_string()
+        ])])
     );
 }

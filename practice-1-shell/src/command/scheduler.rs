@@ -3,7 +3,7 @@ use std::io;
 use std::io::{Result, Write as IoWrite};
 use std::process;
 
-use crate::cu_kind;
+use crate::cu_kind::{self, Command::*};
 use crate::env::Env;
 
 pub struct Scheduler<'a, T: SchedulerDriver> {
@@ -72,15 +72,16 @@ where
             .into_iter()
             .scan(&mut iobuf, |stdin, cmd| {
                 let exec_res = match cmd {
-                    cu_kind::Command(cu_kind::CommandUnitKind::Cat, args) => self.cat(&args, stdin),
-                    cu_kind::Command(cu_kind::CommandUnitKind::Echo, args) => self.echo(&args),
-                    cu_kind::Command(cu_kind::CommandUnitKind::Wc, args) => self.wc(&args, stdin),
-                    cu_kind::Command(cu_kind::CommandUnitKind::Pwd, _) => self.pwd(),
-                    cu_kind::Command(cu_kind::CommandUnitKind::Exit, _) => self.exit(),
-                    cu_kind::Command(cu_kind::CommandUnitKind::External, args) => {
-                        self.external(&args, stdin)
+                    Cat(args) => self.cat(&args, stdin),
+                    Echo(args) => self.echo(&args),
+                    Wc(args) => self.wc(&args, stdin),
+                    Pwd => self.pwd(),
+                    Exit => self.exit(),
+                    External(args) => self.external(&args, stdin),
+                    SetEnvVar(var, val) => {
+                        self.env.insert(var, val);
+                        Ok(None)
                     }
-                    cu_kind::Command(cu_kind::CommandUnitKind::SetEnvVar, v) => self.set_env_var(v),
                 };
 
                 Some(match exec_res {
@@ -98,14 +99,6 @@ where
         };
 
         exit_codes
-    }
-
-    fn set_env_var(&mut self, args: cu_kind::Args) -> ExecResult {
-        let mut iter = args.into_iter();
-        let var = iter.next().unwrap();
-        let val = iter.next().unwrap();
-        self.env.insert(var, val);
-        Ok(None)
     }
 
     fn external(&mut self, args: &cu_kind::Args, stdin: &Option<String>) -> ExecResult {
