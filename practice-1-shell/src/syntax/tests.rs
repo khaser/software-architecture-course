@@ -151,7 +151,7 @@ fn parser_external_command_test() {
     let ls = String::from("ls");
     parser_test(
         vec![Token::Ident(ls.clone())],
-        Ok(vec![Command::External(vec![ls])]),
+        Ok(vec![Command::External(ls, vec![])]),
     )
 }
 

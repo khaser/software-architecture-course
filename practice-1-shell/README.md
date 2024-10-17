@@ -4,9 +4,9 @@
 Планируемый язык реализации: Rust
 
 ## Процесс сборки и запуска
-С установленным rust toolchain можно собрать проект в одну команду.
+С установленным rust toolchain можно собрать и проект в одну команду.
 ```
-cargo run
+cargo build && cargo run
 ```
 
 Установка rust toolchain описана на [сайте](https://www.rust-lang.org/tools/install).

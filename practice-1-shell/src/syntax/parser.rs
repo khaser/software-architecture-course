@@ -111,11 +111,6 @@ impl<'a, 'b> Parser<'a> {
         }
     }
 
-    fn parse_external_command(name: String, mut args: Vec<String>) -> PResult<Command> {
-        args.insert(0, name);
-        Ok(Command::External(args))
-    }
-
     fn parse_command(command_tokens: Vec<String>) -> PResult<Command> {
         let mut iter = command_tokens.into_iter();
         let command = iter.next();
@@ -128,14 +123,14 @@ impl<'a, 'b> Parser<'a> {
         }
         if let Some(command) = command {
             let args = Parser::collect_args(iter);
-            match command.as_str() {
-                "echo" => Ok(Command::Echo(args)),
-                "wc" => Ok(Command::Wc(args)),
-                "cat" => Ok(Command::Cat(args)),
-                "pwd" => Ok(Command::Pwd),
-                "exit" => Ok(Command::Exit),
-                _ => Parser::parse_external_command(command, args),
-            }
+            Ok(match command.as_str() {
+                "echo" => Command::Echo(args),
+                "wc" => Command::Wc(args),
+                "cat" => Command::Cat(args),
+                "pwd" => Command::Pwd,
+                "exit" => Command::Exit,
+                _ => Command::External(command, args),
+            })
         } else {
             Err(ParserError::ZeroCommandArgs)
         }

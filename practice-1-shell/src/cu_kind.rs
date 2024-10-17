@@ -7,6 +7,6 @@ pub enum Command {
     Wc(Args),
     Pwd,
     Exit,
-    External(Args),
+    External(String, Args),
     SetEnvVar(String, String),
 }

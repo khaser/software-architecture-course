@@ -2,11 +2,26 @@
 name = "rush"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+default-run = "rush"
 
 [dependencies]
 
 [[bin]]
 name = "rush"
 path = "src/main.rs"
+
+[[bin]]
+name = "echo"
+path = "src/builtins/echo.rs"
+
+[[bin]]
+name = "cat"
+path = "src/builtins/cat.rs"
+
+[[bin]]
+name = "wc"
+path = "src/builtins/wc.rs"
+
+[[bin]]
+name = "pwd"
+path = "src/builtins/pwd.rs"

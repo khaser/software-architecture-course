@@ -3,7 +3,7 @@ mod cu_kind;
 mod env;
 mod syntax;
 
-use command::scheduler::{ExitCode, RealFsDriver, Scheduler};
+use command::scheduler::{ExitCode, Scheduler};
 use env::Env;
 use std::io;
 use std::io::Write;
@@ -31,8 +31,7 @@ fn main() {
             }
         };
 
-        let mut sched_driver = RealFsDriver {};
-        let mut sched = Scheduler::new(&mut env, &mut sched_driver);
+        let mut sched = Scheduler::new(&mut env);
         let exit_codes = sched.run(commands);
         if exit_codes
             .into_iter()
