@@ -7,7 +7,7 @@ fn wc_str(content: String) -> (usize, usize, usize) {
             .split(&[' ', '\n'])
             .filter(|x| !x.is_empty())
             .count(),
-        content.split('\n').count(),
+        content.split('\n').count() - 1,
     )
 }
 

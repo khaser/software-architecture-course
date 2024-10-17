@@ -2,6 +2,7 @@ use std::{env, fs, io::Read, process};
 
 fn main() {
     let args: Vec<String> = env::args().skip(1).collect();
+    let mut exit_code = 0;
     match args.as_slice() {
         [] => {
             let mut buf = String::new();
@@ -16,10 +17,11 @@ fn main() {
                     }
                     Err(err) => {
                         eprintln!("cat: {}: {}", filename, err);
-                        process::exit(1)
+                        exit_code = 1;
                     }
                 }
             }
         }
     }
+    process::exit(exit_code)
 }
