@@ -19,7 +19,7 @@ fn main() {
     match args.as_slice() {
         [] => {
             let mut buf = String::new();
-            let _ = std::io::stdin().read_to_string(&mut buf);
+            std::io::stdin().read_to_string(&mut buf).unwrap();
             let (lines, words, bytes) = wc_str(buf);
             println!("{} {} {}", lines, words, bytes);
         }
@@ -34,10 +34,7 @@ fn main() {
             }
         },
         args => {
-            let mut lines_total = 0usize;
-            let mut bytes_total = 0usize;
-            let mut words_total = 0usize;
-
+            let (mut lines_total, mut bytes_total, mut words_total) = (0usize, 0usize, 0usize);
             for filename in args {
                 match fs::read_to_string(&filename) {
                     Ok(file_content) => {
@@ -53,7 +50,6 @@ fn main() {
                     }
                 }
             }
-
             println!("{} {} {} total", lines_total, words_total, bytes_total);
         }
     }

@@ -79,7 +79,7 @@ impl<'a> Scheduler<'a> {
             .stdout(Stdio::inherit())
             .spawn()
             .unwrap();
-        let _ = child.wait();
+        child.wait().unwrap();
 
         exit_codes
     }
@@ -96,25 +96,23 @@ impl<'a> Scheduler<'a> {
         stdin: &mut &mut Stdio,
     ) -> ExecResult {
         let mut cmd = process::Command::new(&executable);
-        unsafe {
-            cmd.args(args)
-                .envs(self.env as &Env)
-                .stdin(std::ptr::read(*stdin as *mut Stdio))
-                .stdout(Stdio::piped());
-            match cmd.spawn() {
-                Ok(child) => {
-                    **stdin = child.stdout.unwrap().into();
-                    Ok(())
-                }
-                Err(err) => {
-                    **stdin = Stdio::null();
-                    eprintln!(
-                        "failed to execute {}: {}",
-                        executable.into_string().unwrap(),
-                        err
-                    );
-                    Err(err.into())
-                }
+        cmd.args(args)
+            .envs(self.env as &Env)
+            .stdin(unsafe{std::ptr::read(*stdin as *mut Stdio)})
+            .stdout(Stdio::piped());
+        match cmd.spawn() {
+            Ok(child) => {
+                **stdin = child.stdout.unwrap().into();
+                Ok(())
+            }
+            Err(err) => {
+                **stdin = Stdio::null();
+                eprintln!(
+                    "failed to execute {}: {}",
+                    executable.into_string().unwrap(),
+                    err
+                );
+                Err(err.into())
             }
         }
     }

@@ -48,7 +48,6 @@ impl<'a, 'b> Parser<'a> {
         match kind {
             super::token::LiteralKind::SingleQuoted => content,
             super::token::LiteralKind::DoubleQuoted => {
-                // println!("content: {} {}", content, self.env.len());
                 Lexer::expanse(content, self.env)
             }
         }
