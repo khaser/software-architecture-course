@@ -145,11 +145,41 @@ rush ~ echo a b c | wc
 Отображает полное имя текущей директории. Код возврата всегда 0.
 
 Пример:
-  ```sh
-  rush ~ pwd abc abd
-  /home/khaser/best-sw-arch-course/practice-1-shell
-  ```
+```sh
+rush ~ pwd abc abd
+/home/khaser/best-sw-arch-course/practice-1-shell
+```
 
+### `grep [OPTIONS] <PATTERN> <FILE>...`
+
+Ищет внутри содержимого файлов все удовлетворяющие паттерну строчки и выводит их в стандартный поток вывода.
+```sh
+rush ~ grep --help
+grep - print lines that match patterns
+
+Usage: grep [OPTIONS] <PATTERN> [FILE_NAME]...
+
+Arguments:
+  <PATTERN>       Pattern to search
+  [FILE_NAME]...  Source file names for search
+
+Options:
+  -i, --ignore-case                    Ignore case distinctions in patterns and data
+  -w, --word-regexp                    Match only whole words
+  -A, --after-context <AFTER_CONTEXT>  Print AFTER_CONTEXT lines if trailing context [default: 0]
+  -h, --help                           Print help
+```
+
+Если файлов несколько, к каждой строчке приписывает имя файла.
+
+Файлы считываются последовательно, если какого-то из файлов нет, то выводится ошибка и продолжается обработка остальных файлов. Если не получается открыть хоть один файл, то код возврата будет 1, в противном случае 0. Если не было передано ни одного файла, код возврата будет всегда 0.
+```sh
+rush ~ grep -i "String" -A 1 -w src/builtins/grep.rs    
+    pattern: String,
+    /// Source file names for search
+    file_name: Vec<String>,
+}
+```
 ### `exit`
 
 Вызывает нормальное завершение shell и выводит прощальное сообщение `Bye!` в стандартный поток вывода.

@@ -1,13 +1,13 @@
-use std::{env, fs, io::Read, process};
+use std::{env, fs, io::Read, process::ExitCode};
 
-fn main() {
+fn main() -> ExitCode {
     let args: Vec<String> = env::args().skip(1).collect();
-    let mut exit_code = 0;
     match args.as_slice() {
         [] => {
             let mut buf = String::new();
             let _ = std::io::stdin().read_to_string(&mut buf);
             print!("{}", buf);
+            ExitCode::from(0)
         }
         args => {
             for filename in args {
@@ -17,11 +17,11 @@ fn main() {
                     }
                     Err(err) => {
                         eprintln!("cat: {}: {}", filename, err);
-                        exit_code = 1;
+                        return ExitCode::from(1);
                     }
                 }
             }
+            ExitCode::from(0)
         }
     }
-    process::exit(exit_code)
 }

@@ -64,6 +64,9 @@ impl<'a> Scheduler<'a> {
                         self.external(self.get_builtin_absolute_path("wc"), args.iter(), stdin)
                     }
                     Pwd => self.external(self.get_builtin_absolute_path("pwd"), [].iter(), stdin),
+                    Grep(args) => {
+                        self.external(self.get_builtin_absolute_path("grep"), args.iter(), stdin)
+                    }
                 };
 
                 Some(match exec_res {
@@ -98,7 +101,7 @@ impl<'a> Scheduler<'a> {
         let mut cmd = process::Command::new(&executable);
         cmd.args(args)
             .envs(self.env as &Env)
-            .stdin(unsafe{std::ptr::read(*stdin as *mut Stdio)})
+            .stdin(unsafe { std::ptr::read(*stdin as *mut Stdio) })
             .stdout(Stdio::piped());
         match cmd.spawn() {
             Ok(child) => {

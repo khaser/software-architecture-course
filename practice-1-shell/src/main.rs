@@ -33,11 +33,7 @@ fn main() {
 
         let mut sched = Scheduler::new(&mut env);
         let exit_codes = sched.run(commands);
-        if exit_codes
-            .into_iter()
-            .find(|x| *x == ExitCode::Failure)
-            .is_some()
-        {
+        if exit_codes.into_iter().any(|x| x == ExitCode::Failure) {
             eprintln!("Error: Execution failed");
         }
         if sched.should_terminate {

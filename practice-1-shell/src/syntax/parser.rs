@@ -47,9 +47,7 @@ impl<'a, 'b> Parser<'a> {
     fn expanse_string(&self, kind: LiteralKind, content: String) -> String {
         match kind {
             super::token::LiteralKind::SingleQuoted => content,
-            super::token::LiteralKind::DoubleQuoted => {
-                Lexer::expanse(content, self.env)
-            }
+            super::token::LiteralKind::DoubleQuoted => Lexer::expanse(content, self.env),
         }
     }
 
@@ -128,6 +126,7 @@ impl<'a, 'b> Parser<'a> {
                 "cat" => Command::Cat(args),
                 "pwd" => Command::Pwd,
                 "exit" => Command::Exit,
+                "grep" => Command::Grep(args),
                 _ => Command::External(command, args),
             })
         } else {

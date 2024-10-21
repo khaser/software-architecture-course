@@ -5,6 +5,8 @@ edition = "2021"
 default-run = "rush"
 
 [dependencies]
+clap = { version = "4.5.20", features = ["derive"] }
+regex = "1.11.0"
 
 [[bin]]
 name = "rush"
@@ -25,3 +27,7 @@ path = "src/builtins/wc.rs"
 [[bin]]
 name = "pwd"
 path = "src/builtins/pwd.rs"
+
+[[bin]]
+name = "grep"
+path = "src/builtins/grep.rs"
