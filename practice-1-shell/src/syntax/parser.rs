@@ -1,12 +1,9 @@
 use std::{fmt, slice::Split, vec::IntoIter};
 
-use crate::{
-    cu_kind::{Command, CommandUnitKind},
-    env::Env,
-};
+use crate::{cu_kind::Command, env::Env};
 
 use super::{
-    lexer::EQ_TOKEN,
+    lexer::{Lexer, EQ_TOKEN},
     token::{LiteralKind, Token},
 };
 
@@ -42,23 +39,21 @@ impl<'a, 'b> Parser<'a> {
 
     fn parse_commands(
         &mut self,
-        tokens: &'b Vec<Token>,
+        tokens: &'b [Token],
     ) -> Split<'b, Token, impl FnMut(&'_ Token) -> bool> {
-        tokens.split(|token| if let Token::Pipe = token { true } else { false })
+        tokens.split(|token| matches!(token, Token::Pipe))
     }
 
-    fn expanse_string(kind: LiteralKind, content: String) -> String {
+    fn expanse_string(&self, kind: LiteralKind, content: String) -> String {
         match kind {
             super::token::LiteralKind::SingleQuoted => content,
-            super::token::LiteralKind::DoubleQuoted => {
-                content // TODO("Changed later")
-            }
+            super::token::LiteralKind::DoubleQuoted => Lexer::expanse(content, self.env),
         }
     }
 
-    fn token_to_string(token: &Token) -> PResult<String> {
+    fn token_to_string(&self, token: &Token) -> PResult<String> {
         match token {
-            Token::Ident(str) => Ok(str.clone()),
+            Token::Ident(str) => Ok(self.expanse_string(LiteralKind::DoubleQuoted, str.clone())),
             Token::Literal {
                 content,
                 kind,
@@ -67,7 +62,7 @@ impl<'a, 'b> Parser<'a> {
                 if !terminated {
                     Err(ParserError::UnterminatedLiteral(content.clone()))
                 } else {
-                    let str = Parser::expanse_string(*kind, content.clone());
+                    let str = self.expanse_string(*kind, content.clone());
                     Ok(str)
                 }
             }
@@ -91,7 +86,7 @@ impl<'a, 'b> Parser<'a> {
                     if let Token::WhiteSpace = token {
                         continue;
                     }
-                    match Parser::token_to_string(token) {
+                    match self.token_to_string(token) {
                         Ok(token) => command_tokens.push(token),
                         Err(err) => return Err(err),
                     }
@@ -107,18 +102,10 @@ impl<'a, 'b> Parser<'a> {
 
     fn parse_set_env(var_name: String, mut iter: IntoIter<String>) -> PResult<Command> {
         if let Some(value) = iter.next() {
-            Ok(Command(
-                CommandUnitKind::SetEnvVar,
-                vec![var_name, value.to_string()],
-            ))
+            Ok(Command::SetEnvVar(var_name, value.to_string()))
         } else {
             Err(ParserError::SetEnvValueExpected)
         }
-    }
-
-    fn parse_external_command(name: String, mut args: Vec<String>) -> PResult<Command> {
-        args.insert(0, name);
-        Ok(Command(CommandUnitKind::External, args))
     }
 
     fn parse_command(command_tokens: Vec<String>) -> PResult<Command> {
@@ -133,15 +120,15 @@ impl<'a, 'b> Parser<'a> {
         }
         if let Some(command) = command {
             let args = Parser::collect_args(iter);
-            let kind = match command.as_str() {
-                "echo" => CommandUnitKind::Echo,
-                "wc" => CommandUnitKind::Wc,
-                "pwd" => CommandUnitKind::Pwd,
-                "cat" => CommandUnitKind::Cat,
-                "exit" => CommandUnitKind::Exit,
-                _ => return Parser::parse_external_command(command, args),
-            };
-            Ok(Command(kind, args))
+            Ok(match command.as_str() {
+                "echo" => Command::Echo(args),
+                "wc" => Command::Wc(args),
+                "cat" => Command::Cat(args),
+                "pwd" => Command::Pwd,
+                "exit" => Command::Exit,
+                "grep" => Command::Grep(args),
+                _ => Command::External(command, args),
+            })
         } else {
             Err(ParserError::ZeroCommandArgs)
         }

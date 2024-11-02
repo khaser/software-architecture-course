@@ -1,10 +1,13 @@
 use std::str::Chars;
 
+use crate::env::Env;
+
 use super::token::{LiteralKind, Token};
 
 type Pos = usize;
 
 const EOF_CHAR: char = '\0';
+const DOLLAR_TOKEN: char = '$';
 pub const EQ_TOKEN: &str = "=";
 
 pub struct Lexer<'a> {
@@ -26,6 +29,29 @@ impl<'a> Lexer<'a> {
         let mut lex = self;
         let iter = std::iter::from_fn(move || lex.get_next_token());
         iter.collect()
+    }
+
+    pub fn expanse(content: String, env: &Env) -> String {
+        let mut new_content: String = String::new();
+        let mut iter = content.chars();
+        while let Some(c) = iter.next() {
+            if c == DOLLAR_TOKEN {
+                let mut var_name: String = String::from("");
+                while let Some(nc) = iter.clone().next() {
+                    if Lexer::is_correct_ident(nc) {
+                        var_name.push(nc);
+                        iter.next();
+                    } else {
+                        break;
+                    }
+                }
+                new_content.push_str(env.get(var_name.as_str()).unwrap_or(&"".to_string()));
+            } else {
+                new_content.push(c);
+            }
+        }
+
+        new_content
     }
 }
 
@@ -55,11 +81,11 @@ impl Lexer<'_> {
                 _ => (),
             }
         }
-        return Token::Literal {
+        Token::Literal {
             content: self.substr_from(pos),
             kind: lit_kind,
             terminated: false,
-        };
+        }
     }
 
     #[inline]
@@ -83,10 +109,7 @@ impl Lexer<'_> {
     }
 
     fn is_correct_ident(c: char) -> bool {
-        match c {
-            'a'..='z' | 'A'..='Z' | '_' | '0'..='9' | '/' | '-' | '.' => true,
-            _ => false,
-        }
+        matches!(c, 'a'..='z' | 'A'..='Z' | '_' | '0'..='9' | '/' | '-' | '.')
     }
 
     fn is_eof(&self) -> bool {

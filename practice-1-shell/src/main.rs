@@ -3,7 +3,7 @@ mod cu_kind;
 mod env;
 mod syntax;
 
-use command::scheduler::{RealFsDriver, Scheduler};
+use command::scheduler::{ExitCode, Scheduler};
 use env::Env;
 use std::io;
 use std::io::Write;
@@ -26,15 +26,15 @@ fn main() {
         let commands = match parser.parse(lexer.tokenize()) {
             Ok(c) => c,
             Err(parse_error) => {
-                eprintln!("{}", parse_error);
+                eprintln!("Error: {}", parse_error);
                 continue;
             }
         };
 
-        let mut sched_driver = RealFsDriver {};
-        let mut sched = Scheduler::new(&mut env, &mut sched_driver);
-        if let Err(e) = &sched.run(commands) {
-            eprintln!("{}", &e);
+        let mut sched = Scheduler::new(&mut env);
+        let exit_codes = sched.run(commands);
+        if exit_codes.into_iter().any(|x| x == ExitCode::Failure) {
+            eprintln!("Error: Execution failed");
         }
         if sched.should_terminate {
             println!("Bye!");
