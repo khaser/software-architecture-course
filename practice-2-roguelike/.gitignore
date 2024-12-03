@@ -1,0 +1,19 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+gradle/wrapper/**
+gradle-cache/**
+gradlew*
+
+# Ignore Gradle build output directory
+build
+
+# Ignore direnv configuration & temporary files
+.direnv
+.envrc
+
+# Ignore idea files
+.idea
+
+# Ignore GC roots for nix profile
+root
+root-*-link
