@@ -1,0 +1,114 @@
+@startuml
+class Main
+note top : Парсинг аргументов, инициализация Game, UI.
+
+class GameController {
+    FightResult fight(fighter attacker, fighter target)
+}
+
+note left : Является верхним классом доменной модели игры.\n\
+Инкапсулирует в себе всю игровую логику от UI.\n\
+Сам должен содержать только логику игровых тиков,\n\
+в остальном должен пользоваться дочерними объектами.
+
+enum FightResult {
+  HIT(hp)
+  MISS
+}
+
+class Map
+
+class GameBuilder<? extends MobsFabric> {
+    ???
+}
+
+class MapBuilder {
+    loadFile(filename)
+    generate(width, height)
+}
+
+class UI {
+    UI(gameController)
+}
+
+class Player {
+}
+
+Interface Fighter {
+    int getEvasion()
+    int getArmor()
+    int dealDamage(fighter target)
+    int takeDamage(hp)
+}
+
+class Experience {
+}
+
+class Inventory {
+}
+
+abstract Item {
+}
+
+abstract MobStrategy {
+    doTurn(curHp, curPosition): Position
+}
+
+abstract Mob {
+    doTurn()
+    Mob(GameController, Position, MobStrategy)
+    getHp(), getXP()
+}
+
+class ConfusedMobDecorator {
+    - Mob mob
+    - int confusionDuration
+    doTurn()
+}
+
+class Position {
+    int x, y;
+}
+
+Main *- Args
+Main *-- GameBuilder
+GameBuilder *-- MapBuilder
+
+Main *-- GameController
+GameController *-- GameContext
+GameController *-- Fight
+
+GameContext <-- "produces" MapBuilder
+
+GameContext *-- Player
+GameContext "1" *-- "*" Mob
+GameContext *-- Map
+
+GameController -- FightResult
+
+UI --> GameController
+Main *- UI
+
+Mob *-- Position
+Mob --> MobStrategy
+Player *-- Position
+
+Mob <|-- Zombie
+Mob <|-- AcidBlob
+Mob <|-- ConfusedMobDecorator
+
+MobStrategy <|-- AggressiveStrategy
+MobStrategy <|-- PassiveStrategy
+MobStrategy <|-- СautiousStrategy
+MobStrategy --> GameContext
+
+Player *-- Inventory
+Inventory "1" *-- "*" Item
+Item <|-- Armor
+Item <|-- Weapon
+
+Player *-- Experience
+Fighter <|-- Player
+Fighter <|-- Mob
+
+@enduml
