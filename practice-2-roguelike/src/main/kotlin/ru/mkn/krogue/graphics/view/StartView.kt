@@ -9,22 +9,24 @@ import org.hexworks.zircon.api.view.base.BaseView
 import ru.mkn.krogue.graphics.ViewConfig
 
 class StartView(
-    private val grid: TileGrid
+    private val grid: TileGrid,
 ) : BaseView(grid, ViewConfig.theme) {
     init {
         val msg = "Welcome to Krogue."
 
-        val header = Components.textBox(contentWidth = msg.length)
-            .addHeader(msg)
-            .addNewLine()
-            .withAlignmentWithin(screen, ComponentAlignment.CENTER)
-            .build()
+        val header =
+            Components.textBox(contentWidth = msg.length)
+                .addHeader(msg)
+                .addNewLine()
+                .withAlignmentWithin(screen, ComponentAlignment.CENTER)
+                .build()
 
-        val startButton = Components.button()
-            .withAlignmentAround(header, ComponentAlignment.BOTTOM_CENTER)
-            .withText("Play!")
-            .withDecorations(box(), shadow())
-            .build()
+        val startButton =
+            Components.button()
+                .withAlignmentAround(header, ComponentAlignment.BOTTOM_CENTER)
+                .withText("Play!")
+                .withDecorations(box(), shadow())
+                .build()
 
         startButton.onActivated {
             replaceWith(PlayView(grid))

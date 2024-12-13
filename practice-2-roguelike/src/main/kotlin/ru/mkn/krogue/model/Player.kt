@@ -1,4 +1,3 @@
 package ru.mkn.krogue.model
 
-class Player {
-}
+class Player

@@ -4,7 +4,6 @@ import org.hexworks.zircon.api.ColorThemes
 import org.hexworks.zircon.api.GraphicalTilesetResources
 import org.hexworks.zircon.api.data.Size
 
-
 object ViewConfig {
     val tileset = GraphicalTilesetResources.nethack16x16()
     val theme = ColorThemes.linuxMintDark()

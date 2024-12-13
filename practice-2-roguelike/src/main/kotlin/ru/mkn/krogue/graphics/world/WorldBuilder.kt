@@ -2,11 +2,9 @@ package ru.mkn.krogue.graphics.world
 
 import org.hexworks.zircon.api.data.Position
 import org.hexworks.zircon.api.data.Position3D
-import org.hexworks.zircon.api.data.Size
 import org.hexworks.zircon.api.data.Size3D
 import ru.mkn.krogue.graphics.block.Block
 import ru.mkn.krogue.graphics.block.BlockFactory
-import ru.mkn.krogue.graphics.tile.EmptyTile
 import ru.mkn.krogue.graphics.tile.FloorTile
 import ru.mkn.krogue.graphics.tile.WallTile
 
@@ -19,7 +17,6 @@ fun Position3D.sameLevelNeighborsShuffled(): List<Position3D> {
 }
 
 class WorldBuilder(private val worldSize: Size3D) {
-
     private var blocks: MutableMap<Position3D, Block> = mutableMapOf()
 
     fun makeCaves(): WorldBuilder {
@@ -27,18 +24,26 @@ class WorldBuilder(private val worldSize: Size3D) {
             .smooth(8)
     }
 
-    fun build(visibleSize: Size3D): World = World(blocks.mapKeys { (key, value) ->
-        ru.mkn.krogue.model.Position(
-            key.x,
-            key.y
+    fun build(visibleSize: Size3D): World =
+        World(
+            blocks.mapKeys { (key, value) ->
+                ru.mkn.krogue.model.Position(
+                    key.x,
+                    key.y,
+                )
+            },
+            visibleSize,
+            worldSize,
         )
-    }, visibleSize, worldSize)
 
     private fun randomizeTiles(): WorldBuilder {
         forAllPositions { pos ->
-            blocks[pos] = if (Math.random() < 0.5) {
-                BlockFactory.createBlock(pos, FloorTile)
-            } else BlockFactory.createBlock(pos, WallTile)
+            blocks[pos] =
+                if (Math.random() < 0.5) {
+                    BlockFactory.createBlock(pos, FloorTile)
+                } else {
+                    BlockFactory.createBlock(pos, WallTile)
+                }
         }
         return this
     }
@@ -69,7 +74,10 @@ class WorldBuilder(private val worldSize: Size3D) {
         worldSize.fetchPositions().forEach(fn)
     }
 
-    private fun MutableMap<Position3D, Block>.whenPresent(pos: Position3D, fn: (Block) -> Unit) {
+    private fun MutableMap<Position3D, Block>.whenPresent(
+        pos: Position3D,
+        fn: (Block) -> Unit,
+    ) {
         this[pos]?.let(fn)
     }
 }

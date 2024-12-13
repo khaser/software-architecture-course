@@ -10,20 +10,18 @@ import ru.mkn.krogue.model.Position
 class World(
     private val posToBlock: Map<Position, Block>,
     visibleSize: Size3D,
-    actualSize: Size3D
+    actualSize: Size3D,
 ) : GameArea<Tile, Block> by GameAreaBuilder.newBuilder<Tile, Block>()
-    .withVisibleSize(visibleSize)
-    .withActualSize(actualSize)
-    .build() {
-
+        .withVisibleSize(visibleSize)
+        .withActualSize(actualSize)
+        .build() {
     init {
         posToBlock.values.forEach { block ->
             setBlockAt(block.pos, block)
         }
     }
 
-    private fun blockOf(position: Position) : Block =
-        posToBlock[position]!!
+    private fun blockOf(position: Position): Block = posToBlock[position]!!
 
     fun update() {
         blockOf(Position(0, 0)).update()

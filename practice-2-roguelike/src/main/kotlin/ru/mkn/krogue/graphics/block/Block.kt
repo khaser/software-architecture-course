@@ -7,7 +7,6 @@ import org.hexworks.zircon.api.data.Tile
 import org.hexworks.zircon.api.data.base.BaseBlock
 import ru.mkn.krogue.graphics.tile.EmptyTile
 import ru.mkn.krogue.graphics.tile.OTile
-import ru.mkn.krogue.graphics.tile.PlayerTile
 
 class Block(val pos: Position3D, val tile: OTile) : BaseBlock<Tile>(EmptyTile.tile, persistentMapOf(BlockTileType.CONTENT to tile.tile)) {
     fun update() {

@@ -1,11 +1,8 @@
 package ru.mkn.krogue.graphics.tile
 
-import org.hexworks.zircon.api.GraphicalTilesetResources
 import org.hexworks.zircon.api.color.TileColor
-import org.hexworks.zircon.api.data.CharacterTile
 import org.hexworks.zircon.api.data.Tile
 import org.hexworks.zircon.api.graphics.Symbols
-import ru.mkn.krogue.graphics.ViewConfig
 
 sealed interface OTile {
     val tile: Tile
@@ -33,7 +30,6 @@ data object WallTile : OTile {
             .withForegroundColor(foregroundColor)
             .withBackgroundColor(backgroundColor)
             .buildCharacterTile()
-
 }
 
 data object PlayerTile : OTile {
@@ -46,10 +42,8 @@ data object PlayerTile : OTile {
             .withForegroundColor(foregroundColor)
             .withBackgroundColor(backgroundColor)
             .buildCharacterTile()
-
 }
 
 data object EmptyTile : OTile {
     override val tile: Tile = Tile.empty()
 }
-

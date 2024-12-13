@@ -6,8 +6,8 @@ GLOBAL_ROOT=$PWD/..
 cat > $GLOBAL_ROOT/.git/hooks/pre-commit <<HOOK
 #!/usr/bin/env bash
 ######## RENDER-UML HOOK START ########
-make -C uml render
-git add uml
+make -C $PWD/uml render
+git add $PWD/uml
 
 # check there is no embedded uml
 if grep -qi 'startuml' *.md ; then
