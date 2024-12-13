@@ -27,7 +27,8 @@ class GameBuilder<? extends MobsFabric> {
     ???
 }
 
-class MapBuilder {
+
+class "Map" as MapBuilder <<companion>> {
     loadFile(filename)
     generate(width, height)
 }
