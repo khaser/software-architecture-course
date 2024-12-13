@@ -1,12 +1,12 @@
 @startuml
 class Main
-note top : Парсинг аргументов, инициализация Game, UI.
+note left: Парсинг аргументов, инициализация Game, UI.
 
 class GameController {
     FightResult fight(fighter attacker, fighter target)
 }
 
-note left : Является верхним классом доменной модели игры.\n\
+note right : Является верхним классом доменной модели игры.\n\
 Инкапсулирует в себе всю игровую логику от UI.\n\
 Сам должен содержать только логику игровых тиков,\n\
 в остальном должен пользоваться дочерними объектами.
@@ -16,7 +16,12 @@ enum FightResult {
   MISS
 }
 
-class Map
+class Map {
+    tiles: Map(Position -> Floor|Wall)
+    items: Map(Position -> [Items])
+}
+
+Map *-- Item
 
 class GameBuilder<? extends MobsFabric> {
     ???
@@ -47,7 +52,8 @@ class Experience {
 class Inventory {
 }
 
-abstract Item {
+interface Item {
+
 }
 
 abstract MobStrategy {
@@ -55,6 +61,7 @@ abstract MobStrategy {
 }
 
 abstract Mob {
+    private int hp, xp;
     doTurn()
     Mob(GameController, Position, MobStrategy)
     getHp(), getXP()
@@ -78,7 +85,8 @@ Main *-- GameController
 GameController *-- GameContext
 GameController *-- Fight
 
-GameContext <-- "produces" MapBuilder
+GameContext <-- "produces" GameBuilder
+Map <-- MapBuilder : "produces" 
 
 GameContext *-- Player
 GameContext "1" *-- "*" Mob
