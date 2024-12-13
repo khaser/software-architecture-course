@@ -15,11 +15,14 @@
       ];
     in {
       devShells = rec {
-        default = pkgs.mkShell {
-          name = "kotlin-with-idea";
-          buildInputs = core-pkgs ++ [pkgs.jetbrains.idea-community];
-          GRADLE_USER_HOME="./gradle-cache";
+        minimal = pkgs.mkShell {
+          name = "kotlin";
+          buildInputs = core-pkgs;
+          shellHook = pkgs.lib.readFile ./scripts/shell_hook.sh;
         };
+        default = minimal.overrideAttrs (finalAttrs: previousAttrs: {
+          buildInputs = previousAttrs.buildInputs ++ [ pkgs.jetbrains.idea-community ];
+        });
       };
     });
 }
