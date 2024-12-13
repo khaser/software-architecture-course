@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -ex
+
 PROJ_ROOT=$PWD
 GLOBAL_ROOT=$PWD/..
 
@@ -17,9 +19,9 @@ fi
 ######## RENDER-UML HOOK END ########
 HOOK
 
-# force using gradle from flake instead of ./gradlew
-sed -i -e 's/.\/gradlew/gradle/' $GLOBAL_ROOT/.git/hooks/pre-commit
-
 gradle addKtlintFormatGitPreCommitHook
+
+# force using gradle from flake instead of ./gradlew
+sed -i -e 's/^.*\/gradlew/gradle/' $GLOBAL_ROOT/.git/hooks/pre-commit
 
 chmod u+x $GLOBAL_ROOT/.git/hooks/pre-commit
