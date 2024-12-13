@@ -23,8 +23,9 @@ class Map {
 
 Map *-- Item
 
-class GameBuilder<? extends MobsFabric> {
-    ???
+class "GameContext" as GameBuilder <? extends MobsFabric> <<companion>> {
+    loadFile(filename)
+    generate(width, height)
 }
 
 
@@ -80,7 +81,7 @@ class Position {
 
 Main *- Args
 Main *-- GameBuilder
-GameBuilder *-- MapBuilder
+GameBuilder --> MapBuilder : use
 
 Main *-- GameController
 GameController *-- GameContext
