@@ -1,5 +1,6 @@
 package ru.mkn.krogue.model
 
+import ru.mkn.krogue.model.events.MobTurn
 import ru.mkn.krogue.model.events.TimedGameEvent
 import ru.mkn.krogue.model.map.Direction
 import ru.mkn.krogue.model.map.Tile
@@ -13,9 +14,16 @@ enum class GameState {
 class GameController(
     val context: GameContext,
 ) {
-    var state = GameState.IN_PROGRESS
+    private var state = GameState.IN_PROGRESS
     private var curTick = 0
     private val events = PriorityQueue<TimedGameEvent>()
+
+    init {
+        context.mobs.forEach { mob ->
+            val turnEvent = MobTurn(mob)
+            events.add(TimedGameEvent(0, turnEvent))
+        }
+    }
 
     private fun checkGameState() {
         if (state == GameState.OVER) {
@@ -29,7 +37,7 @@ class GameController(
         val player = context.player
         val tickToStop = curTick + player.unit.tempo
 
-        while (events.isNotEmpty() && events.peek().tick > tickToStop) {
+        while (events.isNotEmpty() && events.peek().tick < tickToStop) {
             val (tick, event) = events.poll()
             val nextFiringTick = tick + event.execute(context)
             events.add(TimedGameEvent(nextFiringTick, event))
@@ -42,13 +50,13 @@ class GameController(
         return state
     }
 
-    fun movePlayer(dir: Direction) {
+    fun movePlayer(dir: Direction): GameState {
         context.run {
             val newPos = player.position + dir
             if (map.tiles[newPos] == Tile.FLOOR) {
                 player.position = newPos
             }
         }
-        resumeToPlayerTurn()
+        return resumeToPlayerTurn()
     }
 }
