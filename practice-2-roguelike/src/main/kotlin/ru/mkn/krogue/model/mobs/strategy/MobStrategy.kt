@@ -1,9 +1,8 @@
 package ru.mkn.krogue.model.mobs.strategy
 
 import ru.mkn.krogue.model.GameContext
-import ru.mkn.krogue.model.Position
 import ru.mkn.krogue.model.GameUnit
-import ru.mkn.krogue.model.mobs.Mob
+import ru.mkn.krogue.model.map.Position
 
 abstract class MobStrategy(
     val context: GameContext,

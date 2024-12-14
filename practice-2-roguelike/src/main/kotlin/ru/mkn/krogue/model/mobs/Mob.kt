@@ -2,7 +2,7 @@ package ru.mkn.krogue.model.mobs
 
 import ru.mkn.krogue.model.GameContext
 import ru.mkn.krogue.model.GameUnit
-import ru.mkn.krogue.model.Position
+import ru.mkn.krogue.model.map.Position
 import ru.mkn.krogue.model.mobs.strategy.MobStrategy
 import ru.mkn.krogue.model.mobs.strategy.StaticMobStrategy
 
@@ -16,8 +16,16 @@ class Mob(
 ) {
     val unit: GameUnit = strategy.unit
 
-    val position: Position
+    var position: Position
         get() = unit.position
+        set(value) {
+            unit.position = value
+        }
+    var hp: Int
+        get() = unit.hp
+        set(value) {
+            unit.hp = value
+        }
 
     fun doTurn(): Position = strategy.doTurn()
 

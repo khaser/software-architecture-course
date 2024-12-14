@@ -1,26 +1,54 @@
 package ru.mkn.krogue.model
 
-import ru.mkn.krogue.model.mobs.Mob
-import ru.mkn.krogue.model.map.Map
+import ru.mkn.krogue.model.events.TimedGameEvent
+import ru.mkn.krogue.model.map.Direction
+import ru.mkn.krogue.model.map.Tile
+import java.util.PriorityQueue
 
 enum class GameState {
     IN_PROGRESS,
-    OVER
+    OVER,
 }
-class GameController(
-    val context: GameContext
-) {
-    fun resumeToPlayerTurn(): GameState {
-        val playerPos = context.player.unit.position
-        context.mobs.forEach { mob ->
-            val mobTurn = mob.doTurn()
-            if (mobTurn == playerPos) {
-                // TODO: fight logic
 
-            } else {
-                mob.unit.position = mobTurn
+class GameController(
+    val context: GameContext,
+) {
+    var state = GameState.IN_PROGRESS
+    private var curTick = 0
+    private val events = PriorityQueue<TimedGameEvent>()
+
+    private fun checkGameState() {
+        if (state == GameState.OVER) {
+            throw Exception("Trying to interact with game, that already over")
+        }
+    }
+
+    private fun resumeToPlayerTurn(): GameState {
+        checkGameState()
+
+        val player = context.player
+        val tickToStop = curTick + player.unit.tempo
+
+        while (events.isNotEmpty() && events.peek().tick > tickToStop) {
+            val (tick, event) = events.poll()
+            val nextFiringTick = tick + event.execute(context)
+            events.add(TimedGameEvent(nextFiringTick, event))
+        }
+        curTick = tickToStop
+
+        if (player.hp <= 0) {
+            state = GameState.OVER
+        }
+        return state
+    }
+
+    fun movePlayer(dir: Direction) {
+        context.run {
+            val newPos = player.position + dir
+            if (map.tiles[newPos] == Tile.FLOOR) {
+                player.position = newPos
             }
         }
-        return GameState.IN_PROGRESS
+        resumeToPlayerTurn()
     }
 }

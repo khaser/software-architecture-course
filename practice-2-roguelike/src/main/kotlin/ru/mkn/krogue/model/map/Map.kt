@@ -5,7 +5,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.hexworks.zircon.api.data.Size
 import ru.mkn.krogue.model.Item
-import ru.mkn.krogue.model.Position
 import java.nio.file.Path
 import kotlin.collections.Map as HashMap
 

@@ -7,8 +7,8 @@ import org.hexworks.zircon.api.data.Tile
 import org.hexworks.zircon.api.game.GameArea
 import ru.mkn.krogue.model.Armor
 import ru.mkn.krogue.model.GameContext
-import ru.mkn.krogue.model.Position
 import ru.mkn.krogue.model.Weapon
+import ru.mkn.krogue.model.map.Position
 import kotlin.collections.Map as HashMap
 
 class World(

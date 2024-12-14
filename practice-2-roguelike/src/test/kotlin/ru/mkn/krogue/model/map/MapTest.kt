@@ -2,7 +2,6 @@ package ru.mkn.krogue.model.map
 
 import org.junit.After
 import ru.mkn.krogue.model.Armor
-import ru.mkn.krogue.model.Position
 import kotlin.io.path.Path
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.readText
