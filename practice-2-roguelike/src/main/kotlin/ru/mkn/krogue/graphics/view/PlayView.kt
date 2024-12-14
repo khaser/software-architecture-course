@@ -34,12 +34,12 @@ class PlayView(
                 .withDecorations(ComponentDecorations.box())
                 .build()
 
-        sidebar.addFragment(
+        val playerStatsFragment =
             PlayerStatsFragment(
                 width = sidebar.contentSize.width,
-                player = gameController.context.player,
-            ),
-        )
+            )
+
+        sidebar.addFragment(playerStatsFragment)
 
         val logArea =
             Components.logArea()
@@ -76,7 +76,8 @@ class PlayView(
                 if (gameStatus == GameState.OVER) {
                     replaceWith(LoseView(gameController, grid, "Skill issue"))
                 }
-                println("Player hp: ${gameController.context.player.hp}")
+
+                playerStatsFragment.mc.text = gameController.context.player.hp.toString()
                 world.update()
             } else {
 //                TODO("not implemented")
