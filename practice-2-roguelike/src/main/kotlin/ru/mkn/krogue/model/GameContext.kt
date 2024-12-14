@@ -1,6 +1,7 @@
 package ru.mkn.krogue.model
 
 import ru.mkn.krogue.model.map.Map
+import ru.mkn.krogue.model.map.Position
 import ru.mkn.krogue.model.mobs.Mob
 import ru.mkn.krogue.model.mobs.MobAppearance
 import ru.mkn.krogue.model.player.Player
