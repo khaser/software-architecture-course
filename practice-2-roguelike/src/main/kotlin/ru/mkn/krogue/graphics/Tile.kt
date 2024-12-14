@@ -1,14 +1,20 @@
 package ru.mkn.krogue.graphics
 
+import org.hexworks.zircon.api.color.ANSITileColor
 import org.hexworks.zircon.api.color.TileColor
 import org.hexworks.zircon.api.data.Tile
 import org.hexworks.zircon.api.graphics.Symbols
+import ru.mkn.krogue.graphics.Color.FLOOR_BACKGROUND
+
+object Color {
+    val FLOOR_BACKGROUND = TileColor.fromString("#1e2320")
+}
 
 val FloorTile =
     Tile.newBuilder()
         .withCharacter(Symbols.INTERPUNCT)
         .withForegroundColor(TileColor.fromString("#75715E"))
-        .withBackgroundColor(TileColor.fromString("#1e2320"))
+        .withBackgroundColor(FLOOR_BACKGROUND)
         .buildCharacterTile()
 
 val WallTile =
@@ -22,28 +28,28 @@ val PlayerTile =
     Tile.newBuilder()
         .withCharacter('@')
         .withForegroundColor(TileColor.fromString("#FFCD22"))
-        .withBackgroundColor(TileColor.fromString("#3E3D32"))
+        .withBackgroundColor(FLOOR_BACKGROUND)
         .buildCharacterTile()
 
 val ArmorTile =
     Tile.newBuilder()
-        .withCharacter('(')
-        .withForegroundColor(TileColor.fromString("#75715E"))
-        .withBackgroundColor(TileColor.fromString("#1e2320"))
+        .withCharacter('[')
+        .withForegroundColor(ANSITileColor.WHITE)
+        .withBackgroundColor(FLOOR_BACKGROUND)
         .buildCharacterTile()
 
 val WeaponTile =
     Tile.newBuilder()
-        .withCharacter(']')
-        .withForegroundColor(TileColor.fromString("#75715E"))
-        .withBackgroundColor(TileColor.fromString("#1e2320"))
+        .withCharacter('(')
+        .withForegroundColor(ANSITileColor.WHITE)
+        .withBackgroundColor(FLOOR_BACKGROUND)
         .buildCharacterTile()
 
 val MobTile =
     Tile.newBuilder()
         .withCharacter('M')
-        .withForegroundColor(TileColor.fromString("#75715E"))
-        .withBackgroundColor(TileColor.fromString("#1e2320"))
+        .withForegroundColor(TileColor.fromString("#85DD1B"))
+        .withBackgroundColor(FLOOR_BACKGROUND)
         .buildCharacterTile()
 
 val EmptyTile = Tile.empty()
