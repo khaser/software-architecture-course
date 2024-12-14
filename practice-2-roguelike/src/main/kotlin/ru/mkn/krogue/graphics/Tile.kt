@@ -21,7 +21,7 @@ val WallTile =
 val PlayerTile =
     Tile.newBuilder()
         .withCharacter('@')
-        .withForegroundColor(TileColor.fromString("#75715E"))
+        .withForegroundColor(TileColor.fromString("#FFCD22"))
         .withBackgroundColor(TileColor.fromString("#3E3D32"))
         .buildCharacterTile()
 

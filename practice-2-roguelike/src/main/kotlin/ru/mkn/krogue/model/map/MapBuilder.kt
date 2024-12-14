@@ -7,17 +7,12 @@ import kotlin.random.Random
 class MapBuilder(val size: Size) {
     private var tiles: MutableMap<Position, Tile> = mutableMapOf()
     private var items = mapOf<Position, List<Item>>()
-    private val positions =
-        (0..size.height).flatMap { y ->
-            (0..size.width).map { x ->
-                Position(x, y)
-            }
-        }
+    private val positions = size.fetchModelPositions()
 
     fun makeCaves(): Map {
         return randomizeTiles()
             .smooth(8)
-            .genItems(0.5)
+            .genItems(0.01)
             .build()
     }
 

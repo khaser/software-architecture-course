@@ -7,8 +7,10 @@ import org.hexworks.zircon.api.component.ComponentAlignment
 import org.hexworks.zircon.api.grid.TileGrid
 import org.hexworks.zircon.api.view.base.BaseView
 import ru.mkn.krogue.graphics.ViewConfig
+import ru.mkn.krogue.model.GameController
 
 class StartView(
+    private val gameController: GameController,
     private val grid: TileGrid,
 ) : BaseView(grid, ViewConfig.theme) {
     init {
@@ -29,7 +31,7 @@ class StartView(
                 .build()
 
         startButton.onActivated {
-            replaceWith(PlayView(TODO(), grid))
+            replaceWith(PlayView(gameController, grid))
         }
 
         screen.addComponents(header, startButton)

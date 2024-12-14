@@ -14,8 +14,8 @@ import kotlin.collections.Map as HashMap
 class World(
     private val gameContext: GameContext,
 ) : GameArea<Tile, Block> by GameAreaBuilder.newBuilder<Tile, Block>()
-        .withVisibleSize(Size3D.from2DSize(ViewConfig.GameArea.size))
-        .withActualSize(Size3D.from2DSize(ViewConfig.World.size))
+        .withVisibleSize(Size3D.from2DSize(ViewConfig.GameArea.size, 1))
+        .withActualSize(Size3D.from2DSize(ViewConfig.World.size, 1))
         .build() {
     private val map: HashMap<Position, Position3D> =
         actualSize.fetchPositions().map { pos -> Position(pos.x, pos.y) to pos }.toMap()

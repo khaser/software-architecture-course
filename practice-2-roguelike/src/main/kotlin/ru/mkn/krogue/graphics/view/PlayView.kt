@@ -13,12 +13,12 @@ import org.hexworks.zircon.internal.game.impl.GameAreaComponentRenderer
 import ru.mkn.krogue.graphics.FloorTile
 import ru.mkn.krogue.graphics.ViewConfig
 import ru.mkn.krogue.graphics.World
-import ru.mkn.krogue.model.GameContext
+import ru.mkn.krogue.model.GameController
 
 class PlayView(
-    gameContext: GameContext,
+    gameController: GameController,
     grid: TileGrid,
-    world: World = World(gameContext),
+    world: World = World(gameController.context),
 ) : BaseView(grid, ViewConfig.theme) {
     init {
         val sidebar =
@@ -54,5 +54,7 @@ class PlayView(
         }
 
         screen.addComponents(sidebar, logArea, gameComponent)
+        // initial update
+        world.update()
     }
 }

@@ -21,6 +21,15 @@ data class Map(val size: Size, val tiles: HashMap<Position, Tile>, val items: Ha
         }
     }
 
+    fun getRandomFreePosition(occupiedPositions: MutableSet<Position>): Position {
+        val pos =
+            size.fetchModelPositions().shuffled().first { pos ->
+                tiles[pos] != Tile.WALL && !items.containsKey(pos) && !occupiedPositions.contains(pos)
+            }
+        occupiedPositions.add(pos)
+        return pos
+    }
+
     companion object {
         fun loadFromFile(path: Path): Map {
             val storedMap =

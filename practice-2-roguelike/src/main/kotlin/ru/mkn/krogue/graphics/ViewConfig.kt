@@ -3,12 +3,13 @@ package ru.mkn.krogue.graphics
 import org.hexworks.zircon.api.ColorThemes
 import org.hexworks.zircon.api.GraphicalTilesetResources
 import org.hexworks.zircon.api.data.Size
+import ru.mkn.krogue.model.Config
 
 object ViewConfig {
     val tileset = GraphicalTilesetResources.nethack16x16()
     val theme = ColorThemes.linuxMintDark()
 
-    val size: Size = Size.create(80, 50)
+    val size: Size = Size.create(Config.mapSize.width + 18, Config.mapSize.height + 8)
 
     object SideBar {
         val size: Size = Size.create(18, ViewConfig.size.height)
@@ -23,7 +24,7 @@ object ViewConfig {
     }
 
     object World {
-        val size: Size = ViewConfig.size
+        val size: Size = Config.mapSize
     }
 
     fun appConfig() =
