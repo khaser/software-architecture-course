@@ -4,24 +4,21 @@ import org.hexworks.cobalt.databinding.api.extension.toProperty
 import org.hexworks.zircon.api.ComponentDecorations
 import org.hexworks.zircon.api.Components
 import org.hexworks.zircon.api.component.ComponentAlignment
-import org.hexworks.zircon.api.data.Size3D
 import org.hexworks.zircon.api.game.ProjectionMode
 import org.hexworks.zircon.api.grid.TileGrid
 import org.hexworks.zircon.api.uievent.KeyboardEventType
 import org.hexworks.zircon.api.uievent.Processed
 import org.hexworks.zircon.api.view.base.BaseView
 import org.hexworks.zircon.internal.game.impl.GameAreaComponentRenderer
+import ru.mkn.krogue.graphics.FloorTile
 import ru.mkn.krogue.graphics.ViewConfig
-import ru.mkn.krogue.graphics.tile.FloorTile
-import ru.mkn.krogue.graphics.world.World
-import ru.mkn.krogue.graphics.world.WorldBuilder
+import ru.mkn.krogue.graphics.World
+import ru.mkn.krogue.model.GameContext
 
 class PlayView(
-    private val grid: TileGrid,
-    private val world: World =
-        WorldBuilder(
-            Size3D.from2DSize(ViewConfig.World.size, 1),
-        ).makeCaves().build(Size3D.from2DSize(ViewConfig.GameArea.size, 1)),
+    gameContext: GameContext,
+    grid: TileGrid,
+    world: World = World(gameContext),
 ) : BaseView(grid, ViewConfig.theme) {
     init {
         val sidebar =
@@ -44,13 +41,14 @@ class PlayView(
                     GameAreaComponentRenderer(
                         gameArea = world,
                         projectionMode = ProjectionMode.TOP_DOWN.toProperty(),
-                        fillerTile = FloorTile.tile,
+                        fillerTile = FloorTile,
                     ),
                 )
                 .withAlignmentWithin(screen, ComponentAlignment.TOP_RIGHT)
                 .build()
 
         screen.handleKeyboardEvents(KeyboardEventType.KEY_PRESSED) { event, _ ->
+            // TODO(kmitkin): send command to model
             world.update()
             Processed
         }

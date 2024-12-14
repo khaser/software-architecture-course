@@ -9,14 +9,24 @@ import ru.mkn.krogue.model.mobs.strategy.StaticMobStrategy
 enum class MobAppearance {
     ZOMBIE,
 }
-class Mob (
+
+class Mob(
     val appearance: MobAppearance,
     private val strategy: MobStrategy,
 ) {
-    var unit = strategy.unit
+    val unit: GameUnit = strategy.unit
+
+    val position: Position
+        get() = unit.position
+
     fun doTurn(): Position = strategy.doTurn()
+
     companion object {
-        fun new(mobFlavour: MobAppearance, context: GameContext, position: Position): Mob {
+        fun new(
+            mobFlavour: MobAppearance,
+            context: GameContext,
+            position: Position,
+        ): Mob {
             return when (mobFlavour) {
                 MobAppearance.ZOMBIE -> {
                     val unit = GameUnit(position, 5, 3)

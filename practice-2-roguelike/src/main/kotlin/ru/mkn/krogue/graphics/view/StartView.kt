@@ -29,7 +29,7 @@ class StartView(
                 .build()
 
         startButton.onActivated {
-            replaceWith(PlayView(grid))
+            replaceWith(PlayView(TODO(), grid))
         }
 
         screen.addComponents(header, startButton)

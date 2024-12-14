@@ -3,6 +3,9 @@ package ru.mkn.krogue.model.player
 import ru.mkn.krogue.model.GameUnit
 import ru.mkn.krogue.model.Position
 
-data class Player (
-    val unit: GameUnit
-)
+data class Player(
+    val unit: GameUnit,
+) {
+    val position: Position
+        get() = unit.position
+}
