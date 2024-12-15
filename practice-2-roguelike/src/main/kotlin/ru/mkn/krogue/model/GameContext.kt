@@ -4,6 +4,7 @@ import ru.mkn.krogue.model.map.Map
 import ru.mkn.krogue.model.map.Position
 import ru.mkn.krogue.model.mobs.Mob
 import ru.mkn.krogue.model.mobs.MobAppearance
+import ru.mkn.krogue.model.player.Equipment
 import ru.mkn.krogue.model.player.Inventory
 import ru.mkn.krogue.model.player.Player
 
@@ -23,6 +24,7 @@ data class GameContext(
                     Inventory(
                         mutableListOf(),
                     ),
+                    Equipment(),
                 )
             val context = GameContext(player, map, mutableListOf())
             val mobs =

@@ -62,6 +62,7 @@ class GameController(
 
     val playerEquipItem = { item: Item ->
         context.player.equipItem(item)
+        resumeToPlayerTurn()
     }
 
     val playerDropItem = { item: Item ->

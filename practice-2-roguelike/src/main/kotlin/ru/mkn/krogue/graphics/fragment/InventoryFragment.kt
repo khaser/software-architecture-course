@@ -1,6 +1,5 @@
 package ru.mkn.krogue.graphics.fragment
 
-import org.hexworks.cobalt.datatypes.Maybe
 import org.hexworks.zircon.api.Components
 import org.hexworks.zircon.api.component.Fragment
 import org.hexworks.zircon.api.component.VBox
@@ -9,7 +8,6 @@ import ru.mkn.krogue.graphics.ViewConfig
 import ru.mkn.krogue.graphics.tile.DaggerTile
 import ru.mkn.krogue.graphics.tile.JacketTile
 import ru.mkn.krogue.model.Armor
-import ru.mkn.krogue.model.GameState
 import ru.mkn.krogue.model.Item
 import ru.mkn.krogue.model.Weapon
 import ru.mkn.krogue.model.player.Inventory
@@ -17,8 +15,8 @@ import ru.mkn.krogue.model.player.Inventory
 class InventoryFragment(
     inventory: Inventory,
     width: Int,
-    private val onDrop: (Item) -> GameState,
-    private val onEquip: (Item) -> Maybe<Item>,
+    private val onDrop: (Item) -> Unit,
+    private val onEquip: (Item) -> Unit,
 ) : Fragment {
     override val root =
         Components.vbox()
@@ -53,10 +51,8 @@ class InventoryFragment(
                 onDrop(item)
             }
             row.equipButton.onActivated {
-                onEquip(item).map { oldItem ->
-                    detach()
-                    addRow(width, oldItem, list)
-                }
+                detach()
+                onEquip(item)
             }
         }
         list.theme = ViewConfig.theme

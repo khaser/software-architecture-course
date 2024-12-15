@@ -9,10 +9,11 @@ import org.hexworks.zircon.api.uievent.Processed
 import org.hexworks.zircon.internal.component.modal.EmptyModalResult
 import ru.mkn.krogue.graphics.ViewConfig
 import ru.mkn.krogue.graphics.fragment.InventoryFragment
+import ru.mkn.krogue.graphics.view.PlayView
 import ru.mkn.krogue.model.GameController
 import ru.mkn.krogue.model.player.Inventory
 
-class InventoryDialog(gameController: GameController, inventory: Inventory, screen: Screen) {
+class InventoryDialog(gameController: GameController, inventory: Inventory, screen: Screen, playView: PlayView) {
     init {
         val panel =
             Components.panel()
@@ -24,8 +25,16 @@ class InventoryDialog(gameController: GameController, inventory: Inventory, scre
             InventoryFragment(
                 inventory = inventory,
                 width = ViewConfig.Dialog.size.width - 3,
-                onDrop = gameController.playerDropItem,
-                onEquip = gameController.playerEquipItem,
+                onDrop = {
+                    val status = gameController.playerDropItem(it)
+                    playView.checkGame(status)
+                    playView.playerStatsFragment.updateStats(gameController.context.player)
+                },
+                onEquip = {
+                    val status = gameController.playerEquipItem(it)
+                    playView.checkGame(status)
+                    playView.playerStatsFragment.updateStats(gameController.context.player)
+                },
             )
 
         panel.addFragment(fragment)

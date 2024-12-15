@@ -24,26 +24,32 @@ import ru.mkn.krogue.model.map.Direction
 
 class PlayView(
     gameController: GameController,
-    grid: TileGrid,
+    private val grid: TileGrid,
     world: World = World(gameController.context),
 ) : BaseView(grid, ViewConfig.theme) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     private val context = gameController.context
 
+    val sidebar =
+        Components.panel()
+            .withSize(ViewConfig.SideBar.size)
+            .withDecorations(ComponentDecorations.box())
+            .build()
+
+    val playerStatsFragment =
+        PlayerStatsFragment(
+            player = context.player,
+            width = sidebar.contentSize.width,
+        )
+
+    fun checkGame(status: GameState) {
+        if (status == GameState.OVER) {
+            replaceWith(LoseView(GameController(GameContext.newFromConfig()), grid, "Skill issue"))
+        }
+    }
+
     init {
-        val sidebar =
-            Components.panel()
-                .withSize(ViewConfig.SideBar.size)
-                .withDecorations(ComponentDecorations.box())
-                .build()
-
-        val playerStatsFragment =
-            PlayerStatsFragment(
-                player = context.player,
-                width = sidebar.contentSize.width,
-            )
-
         sidebar.addFragment(playerStatsFragment)
 
         val logArea =
@@ -82,7 +88,7 @@ class PlayView(
                         gameController.movePlayer(direction)
                     }
                     KeyCode.KEY_I -> {
-                        InventoryDialog(gameController, context.player.inventory, screen)
+                        InventoryDialog(gameController, context.player.inventory, screen, this)
                         GameState.IN_PROGRESS
                     }
                     KeyCode.KEY_P -> {
@@ -92,10 +98,8 @@ class PlayView(
                         GameState.IN_PROGRESS
                     }
                 }
+            checkGame(status)
             playerStatsFragment.updateStats(context.player)
-            if (status == GameState.OVER) {
-                replaceWith(LoseView(GameController(GameContext.newFromConfig()), grid, "Skill issue"))
-            }
             world.update()
             Processed
         }

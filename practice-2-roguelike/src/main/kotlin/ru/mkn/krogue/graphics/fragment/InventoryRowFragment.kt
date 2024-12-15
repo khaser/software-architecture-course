@@ -6,7 +6,7 @@ import ru.mkn.krogue.model.Item
 
 class InventoryRowFragment(width: Int, item: Item) : Fragment {
     val dropButton =
-        Components.button() // 1
+        Components.button()
             .withDecorations()
             .withText("Drop")
             .build()
