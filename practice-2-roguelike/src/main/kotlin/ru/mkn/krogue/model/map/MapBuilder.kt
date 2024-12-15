@@ -6,7 +6,7 @@ import kotlin.random.Random
 
 class MapBuilder(val size: Size) {
     private var tiles: MutableMap<Position, Tile> = mutableMapOf()
-    private var items = mapOf<Position, List<Item>>()
+    private var items = mutableMapOf<Position, MutableList<Item>>()
     private val positions = size.fetchModelPositions()
 
     fun makeCaves(): Map {
@@ -58,9 +58,10 @@ class MapBuilder(val size: Size) {
                 tiles.getOrDefault(pos, Tile.WALL) == Tile.FLOOR
             }.shuffled()
         items =
-            freeTiles.take((percentage * freeTiles.size).toInt()).map { pos ->
-                pos to listOf(Random.bernoulli(Armor(Random.nextInt(5)), Weapon(Random.nextInt(5))))
-            }.toMap()
+            freeTiles.take((percentage * freeTiles.size).toInt()).associateWith {
+                val p: Item = Random.bernoulli(Armor.Jacket, Weapon.Dagger)
+                mutableListOf(p)
+            }.toMutableMap()
         return this
     }
 

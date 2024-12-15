@@ -12,10 +12,12 @@ import org.hexworks.zircon.api.uievent.KeyboardEventType
 import org.hexworks.zircon.api.uievent.Processed
 import org.hexworks.zircon.api.view.base.BaseView
 import org.hexworks.zircon.internal.game.impl.GameAreaComponentRenderer
-import ru.mkn.krogue.graphics.FloorTile
 import ru.mkn.krogue.graphics.ViewConfig
 import ru.mkn.krogue.graphics.World
+import ru.mkn.krogue.graphics.dialog.InventoryDialog
 import ru.mkn.krogue.graphics.fragment.PlayerStatsFragment
+import ru.mkn.krogue.graphics.tile.FloorTile
+import ru.mkn.krogue.model.GameContext
 import ru.mkn.krogue.model.GameController
 import ru.mkn.krogue.model.GameState
 import ru.mkn.krogue.model.map.Direction
@@ -27,6 +29,8 @@ class PlayView(
 ) : BaseView(grid, ViewConfig.theme) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    private val context = gameController.context
+
     init {
         val sidebar =
             Components.panel()
@@ -36,6 +40,7 @@ class PlayView(
 
         val playerStatsFragment =
             PlayerStatsFragment(
+                player = context.player,
                 width = sidebar.contentSize.width,
             )
 
@@ -63,25 +68,35 @@ class PlayView(
 
         screen.handleKeyboardEvents(KeyboardEventType.KEY_PRESSED) { event, _ ->
             logger.info("Receiving player input: $event")
-            val direction =
+            val status =
                 when (event.code) {
-                    KeyCode.KEY_W -> Direction.UP
-                    KeyCode.KEY_A -> Direction.LEFT
-                    KeyCode.KEY_S -> Direction.DOWN
-                    KeyCode.KEY_D -> Direction.RIGHT
-                    else -> null
+                    KeyCode.KEY_W, KeyCode.KEY_A, KeyCode.KEY_S, KeyCode.KEY_D -> {
+                        val direction =
+                            when (event.code) {
+                                KeyCode.KEY_W -> Direction.UP
+                                KeyCode.KEY_A -> Direction.LEFT
+                                KeyCode.KEY_S -> Direction.DOWN
+                                KeyCode.KEY_D -> Direction.RIGHT
+                                else -> throw IllegalStateException("Unreachable")
+                            }
+                        gameController.movePlayer(direction)
+                    }
+                    KeyCode.KEY_I -> {
+                        InventoryDialog(gameController, context.player.inventory, screen)
+                        GameState.IN_PROGRESS
+                    }
+                    KeyCode.KEY_P -> {
+                        gameController.playerPickItem()
+                    }
+                    else -> {
+                        GameState.IN_PROGRESS
+                    }
                 }
-            if (direction != null) {
-                val gameStatus = gameController.movePlayer(direction)
-                if (gameStatus == GameState.OVER) {
-                    replaceWith(LoseView(gameController, grid, "Skill issue"))
-                }
-
-                playerStatsFragment.mc.text = gameController.context.player.hp.toString()
-                world.update()
-            } else {
-//                TODO("not implemented")
+            playerStatsFragment.updateStats(context.player)
+            if (status == GameState.OVER) {
+                replaceWith(LoseView(GameController(GameContext.newFromConfig()), grid, "Skill issue"))
             }
+            world.update()
             Processed
         }
 

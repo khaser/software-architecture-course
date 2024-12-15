@@ -1,10 +1,10 @@
-package ru.mkn.krogue.graphics
+package ru.mkn.krogue.graphics.tile
 
 import org.hexworks.zircon.api.color.ANSITileColor
 import org.hexworks.zircon.api.color.TileColor
 import org.hexworks.zircon.api.data.Tile
 import org.hexworks.zircon.api.graphics.Symbols
-import ru.mkn.krogue.graphics.Color.FLOOR_BACKGROUND
+import ru.mkn.krogue.graphics.tile.Color.FLOOR_BACKGROUND
 
 object Color {
     val FLOOR_BACKGROUND = TileColor.fromString("#1e2320")

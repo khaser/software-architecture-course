@@ -27,6 +27,10 @@ object ViewConfig {
         val size: Size = Config.mapSize
     }
 
+    object Dialog {
+        val size: Size = Size.create(40, 15)
+    }
+
     fun appConfig() =
         org.hexworks.zircon.api.application.AppConfig.newBuilder()
             .withDefaultGraphicalTileset(tileset)

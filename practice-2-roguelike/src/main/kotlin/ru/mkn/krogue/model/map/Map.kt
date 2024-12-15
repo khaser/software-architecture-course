@@ -11,7 +11,7 @@ import kotlin.collections.Map as HashMap
 @Serializable
 data class StoredMap(val size: Size, val tiles: List<Pair<Position, Tile>>, val items: List<Pair<Position, List<Item>>>)
 
-data class Map(val size: Size, val tiles: HashMap<Position, Tile>, val items: HashMap<Position, List<Item>>) {
+data class Map(val size: Size, val tiles: HashMap<Position, Tile>, val items: MutableMap<Position, MutableList<Item>>) {
     fun saveToFile(path: Path) {
         val storedMap = StoredMap(size, tiles.toList(), items.toList())
         val json = Json.encodeToString(storedMap)
@@ -35,7 +35,16 @@ data class Map(val size: Size, val tiles: HashMap<Position, Tile>, val items: Ha
                 path.toFile().reader().use { r ->
                     Json.decodeFromString<StoredMap>(r.readText())
                 }
-            return Map(storedMap.size, storedMap.tiles.toMap(), storedMap.items.toMap())
+            return Map(
+                storedMap.size,
+                storedMap.tiles.toMap(),
+                storedMap.items.associate {
+                    Pair(
+                        it.first,
+                        it.second.toMutableList(),
+                    )
+                }.toMutableMap(),
+            )
         }
 
         fun generate(size: Size): Map = MapBuilder(size).makeCaves()

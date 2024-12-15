@@ -5,6 +5,7 @@ import org.hexworks.zircon.api.data.Position3D
 import org.hexworks.zircon.api.data.Size3D
 import org.hexworks.zircon.api.data.Tile
 import org.hexworks.zircon.api.game.GameArea
+import ru.mkn.krogue.graphics.tile.*
 import ru.mkn.krogue.model.Armor
 import ru.mkn.krogue.model.GameContext
 import ru.mkn.krogue.model.Weapon

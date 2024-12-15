@@ -59,4 +59,25 @@ class GameController(
         }
         return resumeToPlayerTurn()
     }
+
+    val playerEquipItem = { item: Item ->
+        context.player.equipItem(item)
+    }
+
+    val playerDropItem = { item: Item ->
+        context.run {
+            player.dropItem(item)
+            map.items[player.position]?.add(item) ?: map.items.put(player.position, mutableListOf(item))
+            resumeToPlayerTurn()
+        }
+    }
+
+    val playerPickItem = {
+        context.run {
+            val items = map.items[player.position] ?: return@run GameState.IN_PROGRESS
+            player.inventory.items.addAll(items)
+            map.items.remove(player.position)
+            resumeToPlayerTurn()
+        }
+    }
 }

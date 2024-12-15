@@ -4,6 +4,7 @@ import ru.mkn.krogue.model.map.Map
 import ru.mkn.krogue.model.map.Position
 import ru.mkn.krogue.model.mobs.Mob
 import ru.mkn.krogue.model.mobs.MobAppearance
+import ru.mkn.krogue.model.player.Inventory
 import ru.mkn.krogue.model.player.Player
 
 data class GameContext(
@@ -16,7 +17,13 @@ data class GameContext(
             val map = Map.generate(Config.mapSize)
             val occupiedPositions: MutableSet<Position> = mutableSetOf()
             val playerPosition = map.getRandomFreePosition(occupiedPositions)
-            val player = Player(GameUnit(playerPosition, Config.Player.hp, Config.Player.temper))
+            val player =
+                Player(
+                    GameUnit(playerPosition, Config.Player.hp, Config.Player.temper),
+                    Inventory(
+                        mutableListOf(),
+                    ),
+                )
             val context = GameContext(player, map, mutableListOf())
             val mobs =
                 (0 until Config.mobCount).map {
