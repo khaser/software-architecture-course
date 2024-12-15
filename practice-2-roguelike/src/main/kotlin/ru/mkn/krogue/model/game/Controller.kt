@@ -1,5 +1,6 @@
 package ru.mkn.krogue.model.game
 
+import ru.mkn.krogue.model.Config
 import ru.mkn.krogue.model.Item
 import ru.mkn.krogue.model.events.MobTurn
 import ru.mkn.krogue.model.events.TimedGameEvent
@@ -8,6 +9,7 @@ import ru.mkn.krogue.model.map.Tile
 import ru.mkn.krogue.model.mobs.Mob
 import ru.mkn.krogue.model.player.LevelUPStat
 import java.util.PriorityQueue
+import kotlin.random.Random
 
 class Controller(
     val context: Context = Context.newFromConfig(),
@@ -74,6 +76,10 @@ class Controller(
             getMobIn(newPos)?.let {
                 player.dealDamage(it)
                 logger.log("Player attacks ${it.appearance}.")
+                if (Random.nextDouble() < Config.Mobs.confusingProb) {
+                    it.confusedTurnCount = Config.Mobs.confusingTurnCount
+                    logger.log("${it.appearance} now is confused.")
+                }
                 killMobIfNeeded(it)
                 resumeToPlayerTurn()
             }

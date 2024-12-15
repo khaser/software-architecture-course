@@ -15,6 +15,8 @@ open class Unit(
     var hp = maxHp
     private var turnsToRegenHp: Int = regenHpCycle
 
+    constructor(u: Unit) : this(u.position, u.maxHp, u.tempo, u.regenHpCycle, u.baseAttack, u.baseDefense)
+
     fun regenerateHp() {
         if (--turnsToRegenHp == 0) {
             turnsToRegenHp = regenHpCycle

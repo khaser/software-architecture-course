@@ -41,9 +41,14 @@ data class Context(
             val playerPosition = map.getRandomFreePosition(occupiedPositions)
             val player =
                 Player(
-                    playerPosition,
-                    Config.Player.hp,
-                    Config.Player.temper,
+                    Unit(
+                        playerPosition,
+                        Config.Player.hp,
+                        Config.Player.temper,
+                        Config.Player.regenHpCycle,
+                        Config.Player.attack,
+                        Config.Player.defense,
+                    ),
                     Inventory(
                         mutableListOf(),
                     ),

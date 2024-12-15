@@ -1,21 +1,17 @@
 package ru.mkn.krogue.model.player
 
 import ru.mkn.krogue.model.Armor
-import ru.mkn.krogue.model.Config
 import ru.mkn.krogue.model.Item
 import ru.mkn.krogue.model.Weapon
 import ru.mkn.krogue.model.fight.Fighter
 import ru.mkn.krogue.model.game.Unit
-import ru.mkn.krogue.model.map.Position
 
 class Player(
-    position: Position,
-    hp: Int,
-    tempo: Int,
+    unit: Unit,
     val inventory: Inventory,
     val equipment: Equipment,
     val experience: Experience,
-) : Unit(position, hp, tempo, Config.Player.regenHpCycle, Config.Player.attack, Config.Player.defense), Fighter {
+) : Unit(unit), Fighter {
     override val attack: Int
         get() = baseAttack + equipment.weapon.at
 

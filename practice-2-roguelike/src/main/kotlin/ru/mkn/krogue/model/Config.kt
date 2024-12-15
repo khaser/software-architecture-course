@@ -24,6 +24,9 @@ object Config {
     }
 
     object Mobs {
+        val confusingProb = 0.5
+        val confusingTurnCount = 2
+
         data class MobConfig(
             val strategyKind: MobStrategyKind,
             val xp: Int,
