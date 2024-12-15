@@ -1,14 +1,14 @@
 package ru.mkn.krogue.model.mobs.behavior
 
-import ru.mkn.krogue.model.GameContext
-import ru.mkn.krogue.model.GameUnit
+import ru.mkn.krogue.model.game.Context
+import ru.mkn.krogue.model.game.Unit
 import ru.mkn.krogue.model.map.Position
 import ru.mkn.krogue.model.map.Tile
 
 class Roam : Behavior {
     override fun doTurn(
-        context: GameContext,
-        unit: GameUnit,
+        context: Context,
+        unit: Unit,
     ): Position =
         context.run {
             unit.run {

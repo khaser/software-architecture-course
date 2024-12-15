@@ -1,5 +1,6 @@
-package ru.mkn.krogue.model
+package ru.mkn.krogue.model.game
 
+import ru.mkn.krogue.model.Config
 import ru.mkn.krogue.model.map.Map
 import ru.mkn.krogue.model.map.Position
 import ru.mkn.krogue.model.mobs.Mob
@@ -8,20 +9,24 @@ import ru.mkn.krogue.model.player.Equipment
 import ru.mkn.krogue.model.player.Inventory
 import ru.mkn.krogue.model.player.Player
 
-data class GameContext(
+data class Context(
     val player: Player,
     val map: Map,
     val mobs: MutableList<Mob>,
 ) {
-    fun checkTileForUnits(pos: Position): GameUnit? {
+    fun getUnitIn(pos: Position): Unit? {
         if (player.position == pos) return player
+        return getMobIn(pos)
+    }
+
+    fun getMobIn(pos: Position): Mob? {
         return mobs.find { it.position == pos }
     }
 
-    fun checkTileIsFree(pos: Position) = checkTileForUnits(pos) == null
+    fun isFree(pos: Position) = getUnitIn(pos) == null
 
-    fun checkTileIsFreeFromMobs(pos: Position): Boolean {
-        return when (checkTileForUnits(pos)) {
+    fun isFreeFromMobs(pos: Position): Boolean {
+        return when (getUnitIn(pos)) {
             null -> true
             is Player -> return true
             else -> return false
@@ -29,7 +34,7 @@ data class GameContext(
     }
 
     companion object {
-        fun newFromConfig(): GameContext {
+        fun newFromConfig(): Context {
             val map = Map.generate(Config.mapSize)
             val occupiedPositions: MutableSet<Position> = mutableSetOf()
             val playerPosition = map.getRandomFreePosition(occupiedPositions)
@@ -43,7 +48,7 @@ data class GameContext(
                     ),
                     Equipment(),
                 )
-            val context = GameContext(player, map, mutableListOf())
+            val context = Context(player, map, mutableListOf())
             val mobs =
                 (0 until Config.mobCount).map {
                     val mobPosition = map.getRandomFreePosition(occupiedPositions)

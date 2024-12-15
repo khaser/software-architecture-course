@@ -1,12 +1,11 @@
 package ru.mkn.krogue.model.events
 
 import ru.mkn.krogue.model.Config
-import ru.mkn.krogue.model.GameContext
-import ru.mkn.krogue.model.player.Player
+import ru.mkn.krogue.model.game.Context
 import kotlin.math.min
 
 class PlayerHpRegen : GameEvent {
-    override fun execute(context: GameContext): Int =
+    override fun execute(context: Context): Int =
         context.run {
             player.hp = min(player.maxHp, player.hp + 1)
             Config.Player.hpRegenTempo

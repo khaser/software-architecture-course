@@ -10,10 +10,10 @@ import org.hexworks.zircon.internal.component.modal.EmptyModalResult
 import ru.mkn.krogue.graphics.ViewConfig
 import ru.mkn.krogue.graphics.fragment.InventoryFragment
 import ru.mkn.krogue.graphics.view.PlayView
-import ru.mkn.krogue.model.GameController
+import ru.mkn.krogue.model.game.Controller
 import ru.mkn.krogue.model.player.Inventory
 
-class InventoryDialog(gameController: GameController, inventory: Inventory, screen: Screen, playView: PlayView) {
+class InventoryDialog(controller: Controller, inventory: Inventory, screen: Screen, playView: PlayView) {
     init {
         val panel =
             Components.panel()
@@ -26,14 +26,12 @@ class InventoryDialog(gameController: GameController, inventory: Inventory, scre
                 inventory = inventory,
                 width = ViewConfig.Dialog.size.width - 3,
                 onDrop = {
-                    val status = gameController.playerDropItem(it)
-                    playView.checkGame(status)
-                    playView.playerStatsFragment.updateStats()
+                    val status = controller.playerDropItem(it)
+                    playView.update(status)
                 },
                 onEquip = {
-                    val (oldItem, status) = gameController.playerEquipItem(it)
-                    playView.checkGame(status)
-                    playView.playerStatsFragment.updateStats()
+                    val (oldItem, status) = controller.playerEquipItem(it)
+                    playView.update(status)
                     oldItem
                 },
             )

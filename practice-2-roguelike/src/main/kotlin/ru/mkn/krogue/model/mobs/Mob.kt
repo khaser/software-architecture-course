@@ -1,7 +1,7 @@
 package ru.mkn.krogue.model.mobs
 
-import ru.mkn.krogue.model.GameContext
-import ru.mkn.krogue.model.GameUnit
+import ru.mkn.krogue.model.game.Context
+import ru.mkn.krogue.model.game.Unit
 import ru.mkn.krogue.model.map.Position
 import ru.mkn.krogue.model.mobs.strategy.*
 
@@ -13,13 +13,13 @@ enum class MobAppearance {
 }
 
 class Mob(
-    context: GameContext,
+    context: Context,
     val appearance: MobAppearance,
     strategyKind: MobStrategyKind,
     position: Position,
     hp: Int,
     tempo: Int,
-) : GameUnit(position, hp, tempo) {
+) : Unit(position, hp, tempo) {
     private val strategy = MobStrategy.fromKind(strategyKind, context, this)
 
     fun doTurn(): Position = strategy.doTurn()
@@ -27,7 +27,7 @@ class Mob(
     companion object {
         fun new(
             mobFlavour: MobAppearance,
-            context: GameContext,
+            context: Context,
             position: Position,
         ): Mob {
             return when (mobFlavour) {

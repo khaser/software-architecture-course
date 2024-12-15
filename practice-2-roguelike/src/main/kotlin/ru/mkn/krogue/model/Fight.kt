@@ -1,8 +1,10 @@
 package ru.mkn.krogue.model
 
+import ru.mkn.krogue.model.game.Unit
+
 fun fight(
-    attacker: GameUnit,
-    target: GameUnit,
+    attacker: Unit,
+    target: Unit,
 ) {
     target.hp--
 }

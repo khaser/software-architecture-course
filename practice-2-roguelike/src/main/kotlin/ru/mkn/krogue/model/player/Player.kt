@@ -1,9 +1,9 @@
 package ru.mkn.krogue.model.player
 
 import ru.mkn.krogue.model.Armor
-import ru.mkn.krogue.model.GameUnit
 import ru.mkn.krogue.model.Item
 import ru.mkn.krogue.model.Weapon
+import ru.mkn.krogue.model.game.Unit
 import ru.mkn.krogue.model.map.Position
 
 class Player(
@@ -12,7 +12,8 @@ class Player(
     tempo: Int,
     val inventory: Inventory,
     val equipment: Equipment,
-) : GameUnit(position, hp, tempo) {
+//    val experience: Experience
+) : Unit(position, hp, tempo) {
     val maxHp = hp
     val attack: Int
         get() = equipment.weapon.at

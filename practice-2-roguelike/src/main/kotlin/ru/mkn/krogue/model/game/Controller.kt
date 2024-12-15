@@ -1,22 +1,20 @@
-package ru.mkn.krogue.model
+package ru.mkn.krogue.model.game
 
+import ru.mkn.krogue.model.Item
 import ru.mkn.krogue.model.events.MobTurn
 import ru.mkn.krogue.model.events.PlayerHpRegen
 import ru.mkn.krogue.model.events.TimedGameEvent
+import ru.mkn.krogue.model.fight
 import ru.mkn.krogue.model.map.Direction
 import ru.mkn.krogue.model.map.Tile
 import ru.mkn.krogue.model.mobs.Mob
 import java.util.PriorityQueue
 
-enum class GameState {
-    IN_PROGRESS,
-    OVER,
-}
-
-class GameController(
-    val context: GameContext,
+class Controller(
+    val context: Context = Context.newFromConfig(),
+    val logger: Logger = Logger(),
 ) {
-    private var state = GameState.IN_PROGRESS
+    private var state = State.IN_PROGRESS
     private var curTick = 0
     private val events = PriorityQueue<TimedGameEvent>()
     private val mobTurnEvent = mutableMapOf<Mob, TimedGameEvent>()
@@ -33,12 +31,12 @@ class GameController(
     }
 
     private fun checkGameState() {
-        if (state == GameState.OVER) {
+        if (state == State.OVER) {
             throw Exception("Trying to interact with game, that already over")
         }
     }
 
-    private fun resumeToPlayerTurn(): GameState {
+    private fun resumeToPlayerTurn(): State {
         checkGameState()
 
         val player = context.player
@@ -56,21 +54,26 @@ class GameController(
         curTick = tickToStop
 
         if (player.hp <= 0) {
-            state = GameState.OVER
+            state = State.OVER
         }
         return state
     }
 
-    fun movePlayer(dir: Direction): GameState =
+    fun killMobIfNeeded(it: Mob) {
+        if (it.hp <= 0) {
+            context.mobs.remove(it)
+            logger.log("$it was killed!")
+            events.remove(mobTurnEvent[it]!!)
+            mobTurnEvent.remove(it)
+        }
+    }
+
+    val playerMoveTo = { dir: Direction ->
         context.run {
             val newPos = player.position + dir
-            return checkTileForUnits(newPos)?.let {
+            getMobIn(newPos)?.let {
                 fight(player, it)
-                if (it.hp <= 0) {
-                    mobs.remove(it)
-                    events.remove(mobTurnEvent[it]!!)
-                    mobTurnEvent.remove(it)
-                }
+                killMobIfNeeded(it)
                 resumeToPlayerTurn()
             }
                 ?: if (map.tiles[newPos] == Tile.FLOOR) {
@@ -80,18 +83,21 @@ class GameController(
                     map.tiles[newPos] = Tile.FLOOR
                     resumeToPlayerTurn()
                 } else {
-                    GameState.IN_PROGRESS
+                    State.IN_PROGRESS
                 }
         }
+    }
 
     val playerEquipItem = { item: Item ->
         val oldItem = context.player.equipItem(item)
+        logger.log("$item was equipped.")
         Pair(oldItem, resumeToPlayerTurn())
     }
 
     val playerDropItem = { item: Item ->
         context.run {
             player.dropItem(item)
+            logger.log("Item $item was dropped to the floor.")
             map.items[player.position]?.add(item) ?: map.items.put(player.position, mutableListOf(item))
             resumeToPlayerTurn()
         }
@@ -99,7 +105,8 @@ class GameController(
 
     val playerPickItem = {
         context.run {
-            val items = map.items[player.position] ?: return@run GameState.IN_PROGRESS
+            val items = map.items[player.position] ?: return@run State.IN_PROGRESS
+            logger.log("Items $items was picked up.")
             player.inventory.items.addAll(items)
             map.items.remove(player.position)
             resumeToPlayerTurn()

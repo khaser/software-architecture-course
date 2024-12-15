@@ -12,5 +12,7 @@ object Config {
         val hp: Int = 10
         val temper: Int = 3
         val hpRegenTempo = 30
+
+        object Experience
     }
 }

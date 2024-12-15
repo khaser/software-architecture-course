@@ -7,11 +7,11 @@ import org.hexworks.zircon.api.graphics.BoxType
 import org.hexworks.zircon.api.grid.TileGrid
 import org.hexworks.zircon.api.view.base.BaseView
 import ru.mkn.krogue.graphics.ViewConfig
-import ru.mkn.krogue.model.GameController
+import ru.mkn.krogue.model.game.Controller
 import kotlin.system.exitProcess
 
 class LoseView(
-    private val gameController: GameController,
+    private val controller: Controller,
     private val grid: TileGrid,
     private val causeOfDeath: String,
 ) : BaseView(grid, ViewConfig.theme) {
@@ -38,7 +38,7 @@ class LoseView(
                 .build()
 
         restartButton.onActivated {
-            replaceWith(PlayView(gameController, grid))
+            replaceWith(PlayView(controller, grid))
         }
 
         exitButton.onActivated {

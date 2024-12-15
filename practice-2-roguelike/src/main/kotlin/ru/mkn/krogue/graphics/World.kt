@@ -7,13 +7,13 @@ import org.hexworks.zircon.api.data.Tile
 import org.hexworks.zircon.api.game.GameArea
 import ru.mkn.krogue.graphics.tile.*
 import ru.mkn.krogue.model.Armor
-import ru.mkn.krogue.model.GameContext
 import ru.mkn.krogue.model.Weapon
+import ru.mkn.krogue.model.game.Context
 import ru.mkn.krogue.model.map.Position
 import kotlin.collections.Map as HashMap
 
 class World(
-    private val gameContext: GameContext,
+    private val context: Context,
 ) : GameArea<Tile, Block> by GameAreaBuilder.newBuilder<Tile, Block>()
         .withVisibleSize(Size3D.from2DSize(ViewConfig.GameArea.size, 1))
         .withActualSize(Size3D.from2DSize(ViewConfig.World.size, 1))
@@ -28,7 +28,7 @@ class World(
     }
 
     fun update() {
-        gameContext.map.tiles.forEach { (pos, tile) ->
+        context.map.tiles.forEach { (pos, tile) ->
             val viewPos = map[pos] ?: throw IllegalArgumentException("Unexpected $pos position")
             val baseBlockTile =
                 listOf(
@@ -38,15 +38,15 @@ class World(
                     },
                 )
             val items =
-                gameContext.map.items.getOrDefault(pos, listOf()).map {
+                context.map.items.getOrDefault(pos, listOf()).map {
                     when (it) {
                         is Armor -> ArmorTile
                         is Weapon -> WeaponTile
                     }
                 }
-            val mob = gameContext.mobs.find { it.position == pos }?.let { listOf(mobToTile.getValue(it.appearance)) } ?: listOf()
+            val mob = context.mobs.find { it.position == pos }?.let { listOf(mobToTile.getValue(it.appearance)) } ?: listOf()
             val player =
-                if (gameContext.player.position == pos) {
+                if (context.player.position == pos) {
                     listOf(PlayerTile)
                 } else {
                     listOf()

@@ -17,24 +17,30 @@ import ru.mkn.krogue.graphics.World
 import ru.mkn.krogue.graphics.dialog.InventoryDialog
 import ru.mkn.krogue.graphics.fragment.PlayerStatsFragment
 import ru.mkn.krogue.graphics.tile.FloorTile
-import ru.mkn.krogue.model.GameContext
-import ru.mkn.krogue.model.GameController
-import ru.mkn.krogue.model.GameState
+import ru.mkn.krogue.model.game.Controller
+import ru.mkn.krogue.model.game.State
 import ru.mkn.krogue.model.map.Direction
 
 class PlayView(
-    gameController: GameController,
+    controller: Controller,
     private val grid: TileGrid,
-    world: World = World(gameController.context),
+    world: World = World(controller.context),
 ) : BaseView(grid, ViewConfig.theme) {
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    private val context = gameController.context
+    private val context = controller.context
+    private val gameLogger = controller.logger
 
     private val sidebar =
         Components.panel()
             .withSize(ViewConfig.SideBar.size)
             .withDecorations(ComponentDecorations.box())
+            .build()
+
+    private val logArea =
+        Components.logArea()
+            .withDecorations(ComponentDecorations.box(title = "Log"))
+            .withSize(ViewConfig.Log.size)
+            .withAlignmentWithin(screen, ComponentAlignment.BOTTOM_RIGHT)
             .build()
 
     val playerStatsFragment =
@@ -43,21 +49,30 @@ class PlayView(
             width = sidebar.contentSize.width,
         )
 
-    fun checkGame(status: GameState) {
-        if (status == GameState.OVER) {
-            replaceWith(LoseView(GameController(GameContext.newFromConfig()), grid, "Skill issue"))
+    fun checkGame(status: State) {
+        if (status == State.OVER) {
+            replaceWith(LoseView(Controller(), grid, "Skill issue"))
         }
+    }
+
+    private fun updateLog() {
+        gameLogger.consumeLog().forEach { text ->
+            logArea.addParagraph(
+                paragraph = text,
+                withNewLine = false,
+                withTypingEffectSpeedInMs = 10,
+            )
+        }
+    }
+
+    fun update(state: State) {
+        checkGame(state)
+        playerStatsFragment.updateStats()
+        updateLog()
     }
 
     init {
         sidebar.addFragment(playerStatsFragment)
-
-        val logArea =
-            Components.logArea()
-                .withDecorations(ComponentDecorations.box(title = "Log"))
-                .withSize(ViewConfig.Log.size)
-                .withAlignmentWithin(screen, ComponentAlignment.BOTTOM_RIGHT)
-                .build()
 
         val gameComponent =
             Components.panel()
@@ -85,21 +100,20 @@ class PlayView(
                                 KeyCode.KEY_D -> Direction.RIGHT
                                 else -> throw IllegalStateException("Unreachable")
                             }
-                        gameController.movePlayer(direction)
+                        controller.playerMoveTo(direction)
                     }
                     KeyCode.KEY_I -> {
-                        InventoryDialog(gameController, context.player.inventory, screen, this)
-                        GameState.IN_PROGRESS
+                        InventoryDialog(controller, context.player.inventory, screen, this)
+                        State.IN_PROGRESS
                     }
                     KeyCode.KEY_P -> {
-                        gameController.playerPickItem()
+                        controller.playerPickItem()
                     }
                     else -> {
-                        GameState.IN_PROGRESS
+                        State.IN_PROGRESS
                     }
                 }
-            checkGame(status)
-            playerStatsFragment.updateStats()
+            update(status)
             world.update()
             Processed
         }

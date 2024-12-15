@@ -1,10 +1,10 @@
 package ru.mkn.krogue.model.events
 
-import ru.mkn.krogue.model.GameContext
+import ru.mkn.krogue.model.game.Context
 
 sealed interface GameEvent {
     /**
      Returns delay before next execution
      */
-    fun execute(context: GameContext): Int
+    fun execute(context: Context): Int
 }

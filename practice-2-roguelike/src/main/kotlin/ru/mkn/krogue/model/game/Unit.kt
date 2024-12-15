@@ -1,8 +1,8 @@
-package ru.mkn.krogue.model
+package ru.mkn.krogue.model.game
 
 import ru.mkn.krogue.model.map.Position
 
-open class GameUnit(
+open class Unit(
     var position: Position,
     var hp: Int,
     val tempo: Int,
