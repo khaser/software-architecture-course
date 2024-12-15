@@ -7,6 +7,7 @@ import ru.mkn.krogue.model.events.TimedGameEvent
 import ru.mkn.krogue.model.map.Direction
 import ru.mkn.krogue.model.map.Tile
 import ru.mkn.krogue.model.mobs.Mob
+import ru.mkn.krogue.model.mobs.MobAppearance
 import ru.mkn.krogue.model.player.LevelUPStat
 import java.util.PriorityQueue
 import kotlin.random.Random
@@ -20,14 +21,30 @@ class Controller(
     private val events = PriorityQueue<TimedGameEvent>()
     private val mobTurnEvent = mutableMapOf<Mob, TimedGameEvent>()
 
+    private val spawnMob = { shouldLog: Boolean ->
+        { mob: Mob ->
+            if (shouldLog) {
+                logger.log("${mob.appearance} was replicated!")
+            }
+            context.run {
+                val event = TimedGameEvent(curTick + mob.tempo, MobTurn(mob))
+                mobTurnEvent[mob] = event
+                events.add(event)
+                mobs.add(mob)
+                Unit
+            }
+        }
+    }
+
     init {
-        events.addAll(
-            context.mobs.map {
-                val event = TimedGameEvent(0, MobTurn(it))
-                mobTurnEvent[it] = event
-                event
-            },
-        )
+        context.run {
+            val occupiedPositions = mutableSetOf(player.position)
+            (0 until Config.mobCount).map {
+                val mobPosition = map.getRandomFreePosition(occupiedPositions)
+                Mob.new(MobAppearance.entries.shuffled().first(), context, mobPosition, spawnMob)
+                occupiedPositions.add(mobPosition)
+            }
+        }
     }
 
     private fun checkGameState() {
@@ -60,7 +77,7 @@ class Controller(
         return state
     }
 
-    fun killMobIfNeeded(it: Mob) {
+    private fun killMobIfNeeded(it: Mob) {
         if (it.hp <= 0) {
             context.mobs.remove(it)
             logger.log("${it.appearance} was killed!")
@@ -118,6 +135,10 @@ class Controller(
             map.items.remove(player.position)
             resumeToPlayerTurn()
         }
+    }
+
+    val playerSkip = {
+        resumeToPlayerTurn()
     }
 
     val playerGainLevel = { choice: LevelUPStat ->

@@ -74,12 +74,20 @@ val DwarfTile =
         .withBackgroundColor(FLOOR_BACKGROUND)
         .buildCharacterTile()
 
+val SlimeTile =
+    Tile.newBuilder()
+        .withCharacter('S')
+        .withForegroundColor(TileColor.fromString("#d1e231"))
+        .withBackgroundColor(FLOOR_BACKGROUND)
+        .buildCharacterTile()
+
 val mobToTile =
     mapOf(
         MobAppearance.ZOMBIE to ZombieTile,
         MobAppearance.GRID_BUG to GridBugTile,
         MobAppearance.GIANT_SUNDEW to GiantSundewTile,
         MobAppearance.DWARF to DwarfTile,
+        MobAppearance.SLIME to SlimeTile,
     )
 
 val EmptyTile = Tile.empty()

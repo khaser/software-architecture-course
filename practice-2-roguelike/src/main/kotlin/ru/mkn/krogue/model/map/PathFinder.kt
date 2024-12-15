@@ -7,7 +7,7 @@ fun Map.findPath(
     fin: Position,
 ): List<Position>? {
     val prev = mutableMapOf(Pair(start, start))
-    val queue: Queue<Position> = LinkedList<Position>()
+    val queue: Queue<Position> = LinkedList()
     queue.offer(start)
     while (queue.isNotEmpty() && !prev.contains(fin)) {
         val curTile = queue.poll()

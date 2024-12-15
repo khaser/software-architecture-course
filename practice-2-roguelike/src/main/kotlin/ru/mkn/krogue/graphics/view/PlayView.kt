@@ -114,6 +114,9 @@ class PlayView(
                     KeyCode.KEY_P -> {
                         controller.playerPickItem()
                     }
+                    KeyCode.SPACE -> {
+                        controller.playerSkip()
+                    }
                     else -> {
                         State.IN_PROGRESS
                     }

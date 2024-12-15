@@ -6,7 +6,7 @@ import ru.mkn.krogue.model.map.Direction
 import ru.mkn.krogue.model.map.Position
 import ru.mkn.krogue.model.map.Tile
 
-class Flee : Behavior {
+internal class Flee : Behavior {
     override fun doTurn(
         context: Context,
         unit: Unit,

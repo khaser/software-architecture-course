@@ -10,7 +10,11 @@ import java.nio.file.Path
 @Serializable
 data class StoredMap(val size: Size, val tiles: List<Pair<Position, Tile>>, val items: List<Pair<Position, List<Item>>>)
 
-data class Map(val size: Size, val tiles: MutableMap<Position, Tile>, val items: MutableMap<Position, MutableList<Item>>) {
+data class Map(
+    val size: Size,
+    val tiles: MutableMap<Position, Tile>,
+    val items: MutableMap<Position, MutableList<Item>>,
+) {
     fun saveToFile(path: Path) {
         val storedMap = StoredMap(size, tiles.toList(), items.toList())
         val json = Json.encodeToString(storedMap)
@@ -19,7 +23,7 @@ data class Map(val size: Size, val tiles: MutableMap<Position, Tile>, val items:
         }
     }
 
-    fun getFreeAdjacentTiles(pos: Position): List<Position> = pos.adjacentBySidePositions().filter { tiles[it] == Tile.FLOOR }
+    fun getFreeAdjacentTiles(pos: Position): List<Position> = pos.adjacentBySidePositions().filter { tiles[it] == Tile.FLOOR }.shuffled()
 
     fun getRandomFreePosition(occupiedPositions: MutableSet<Position>): Position {
         val pos =

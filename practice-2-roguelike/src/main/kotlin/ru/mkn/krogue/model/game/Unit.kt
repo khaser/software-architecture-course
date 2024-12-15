@@ -11,7 +11,7 @@ open class Unit(
     val regenHpCycle: Int,
     var baseAttack: Int,
     var baseDefense: Int,
-) {
+) : Cloneable {
     var hp = maxHp
     private var turnsToRegenHp: Int = regenHpCycle
 

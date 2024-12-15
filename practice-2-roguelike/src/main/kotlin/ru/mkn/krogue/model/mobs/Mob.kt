@@ -13,16 +13,17 @@ enum class MobAppearance {
     GIANT_SUNDEW,
     GRID_BUG,
     DWARF,
+    SLIME,
 }
 
-class Mob(
+open class Mob(
     context: Context,
     unit: Unit,
     val appearance: MobAppearance,
     val xp: Int,
-    strategyKind: MobStrategyKind,
+    val strategyKind: MobStrategyKind,
 ) : Unit(unit), Fighter {
-    private val strategy = MobStrategy.fromKind(strategyKind, context, this)
+    protected val strategy = MobStrategy.fromKind(strategyKind, context, this)
 
     var confusedTurnCount = 0
     override val attack: Int
@@ -45,22 +46,44 @@ class Mob(
             mobAppearance: MobAppearance,
             context: Context,
             position: Position,
+            spawnMob: (Boolean) -> (Mob) -> kotlin.Unit,
         ): Mob {
             val mobConfig = Config.Mobs.mobSetup.getValue(mobAppearance)
-            return Mob(
-                context,
-                Unit(
-                    position,
-                    mobConfig.hp,
-                    mobConfig.tempo,
-                    mobConfig.regenHpCycle,
-                    mobConfig.baseAttack,
-                    mobConfig.baseDefense,
-                ),
-                mobAppearance,
-                mobConfig.xp,
-                mobConfig.strategyKind,
-            )
+            val mob =
+                if (mobAppearance != MobAppearance.SLIME) {
+                    Mob(
+                        context,
+                        Unit(
+                            position,
+                            mobConfig.hp,
+                            mobConfig.tempo,
+                            mobConfig.regenHpCycle,
+                            mobConfig.baseAttack,
+                            mobConfig.baseDefense,
+                        ),
+                        mobAppearance,
+                        mobConfig.xp,
+                        mobConfig.strategyKind,
+                    )
+                } else {
+                    MobReplicator(
+                        context,
+                        Unit(
+                            position,
+                            mobConfig.hp,
+                            mobConfig.tempo,
+                            mobConfig.regenHpCycle,
+                            mobConfig.baseAttack,
+                            mobConfig.baseDefense,
+                        ),
+                        mobAppearance,
+                        mobConfig.xp,
+                        mobConfig.strategyKind,
+                        spawnMob,
+                    )
+                }
+            spawnMob(false)(mob)
+            return mob
         }
     }
 }
