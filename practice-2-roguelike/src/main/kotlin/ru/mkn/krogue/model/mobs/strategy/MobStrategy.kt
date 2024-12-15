@@ -8,6 +8,7 @@ enum class MobStrategyKind {
     STATIC_DAMAGE_DEALER,
     PLAYER_CHASER,
     PEACEFUL_INHABITANT,
+    WITHDRAWER,
 }
 
 sealed class MobStrategy(
@@ -26,6 +27,7 @@ sealed class MobStrategy(
                 MobStrategyKind.STATIC_DAMAGE_DEALER -> StaticDamageDealer(context, unit)
                 MobStrategyKind.PEACEFUL_INHABITANT -> PeacefulInhabitant(context, unit)
                 MobStrategyKind.PLAYER_CHASER -> PlayerChaser(context, unit)
+                MobStrategyKind.WITHDRAWER -> Withdrawer(context, unit)
             }
         }
     }

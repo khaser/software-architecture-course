@@ -67,11 +67,19 @@ val GiantSundewTile =
         .withBackgroundColor(FLOOR_BACKGROUND)
         .buildCharacterTile()
 
+val DwarfTile =
+    Tile.newBuilder()
+        .withCharacter('D')
+        .withForegroundColor(TileColor.fromString("#753313"))
+        .withBackgroundColor(FLOOR_BACKGROUND)
+        .buildCharacterTile()
+
 val mobToTile =
     mapOf(
         MobAppearance.ZOMBIE to ZombieTile,
         MobAppearance.GRID_BUG to GridBugTile,
         MobAppearance.GIANT_SUNDEW to GiantSundewTile,
+        MobAppearance.DWARF to DwarfTile,
     )
 
 val EmptyTile = Tile.empty()

@@ -36,6 +36,7 @@ object Config {
                 MobAppearance.ZOMBIE to MobConfig(MobStrategyKind.PLAYER_CHASER, 5, 3, 7, 1, 0),
                 MobAppearance.GIANT_SUNDEW to MobConfig(MobStrategyKind.STATIC_DAMAGE_DEALER, 1, 3, 1, 2, 0),
                 MobAppearance.GRID_BUG to MobConfig(MobStrategyKind.PEACEFUL_INHABITANT, 2, 1, 5, 0, 0),
+                MobAppearance.DWARF to MobConfig(MobStrategyKind.WITHDRAWER, 8, 4, 5, 1, 1),
             )
     }
 }

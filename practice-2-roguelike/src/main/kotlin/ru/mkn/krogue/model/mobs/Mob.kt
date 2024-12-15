@@ -11,6 +11,7 @@ enum class MobAppearance {
     ZOMBIE,
     GIANT_SUNDEW,
     GRID_BUG,
+    DWARF,
 //    LEPRECON with stealing mechanic
 }
 
