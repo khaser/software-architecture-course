@@ -14,7 +14,7 @@ class Player(
     tempo: Int,
     val inventory: Inventory,
     val equipment: Equipment,
-//    val experience: Experience
+    val experience: Experience,
 ) : Unit(position, hp, tempo, Config.Player.regenHpCycle, Config.Player.attack, Config.Player.defense), Fighter {
     override val attack: Int
         get() = baseAttack + equipment.weapon.at

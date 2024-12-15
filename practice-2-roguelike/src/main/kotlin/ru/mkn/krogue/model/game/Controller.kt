@@ -6,6 +6,7 @@ import ru.mkn.krogue.model.events.TimedGameEvent
 import ru.mkn.krogue.model.map.Direction
 import ru.mkn.krogue.model.map.Tile
 import ru.mkn.krogue.model.mobs.Mob
+import ru.mkn.krogue.model.player.LevelUPStat
 import java.util.PriorityQueue
 
 class Controller(
@@ -63,6 +64,7 @@ class Controller(
             logger.log("${it.appearance} was killed!")
             events.remove(mobTurnEvent[it]!!)
             mobTurnEvent.remove(it)
+            context.player.experience.getPoints(it.xp)
         }
     }
 
@@ -109,6 +111,25 @@ class Controller(
             player.inventory.items.addAll(items)
             map.items.remove(player.position)
             resumeToPlayerTurn()
+        }
+    }
+
+    val playerGainLevel = { choice: LevelUPStat ->
+        context.run {
+            when (choice) {
+                LevelUPStat.HP -> {
+                    player.maxHp += 5
+                    logger.log("Player looks healthier.")
+                }
+                LevelUPStat.ATK -> {
+                    player.baseAttack += 1
+                    logger.log("Player looks stronger.")
+                }
+                LevelUPStat.DEF -> {
+                    player.baseDefense += 1
+                    logger.log("Player looks tougher.")
+                }
+            }
         }
     }
 }

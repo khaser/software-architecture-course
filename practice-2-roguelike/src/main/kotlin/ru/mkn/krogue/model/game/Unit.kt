@@ -5,11 +5,11 @@ import kotlin.math.min
 
 open class Unit(
     var position: Position,
-    val maxHp: Int,
+    var maxHp: Int,
     val tempo: Int,
     val regenHpCycle: Int,
-    val baseAttack: Int,
-    val baseDefense: Int,
+    var baseAttack: Int,
+    var baseDefense: Int,
 ) {
     var hp = maxHp
     private var turnsToRegenHp: Int = regenHpCycle

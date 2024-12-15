@@ -18,6 +18,7 @@ enum class MobAppearance {
 class Mob(
     context: Context,
     val appearance: MobAppearance,
+    val xp: Int,
     strategyKind: MobStrategyKind,
     position: Position,
     hp: Int,
@@ -46,6 +47,7 @@ class Mob(
             return Mob(
                 context,
                 mobAppearance,
+                mobConfig.xp,
                 mobConfig.strategyKind,
                 position,
                 mobConfig.hp,

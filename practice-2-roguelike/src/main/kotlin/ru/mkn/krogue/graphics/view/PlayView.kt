@@ -43,13 +43,18 @@ class PlayView(
             .withAlignmentWithin(screen, ComponentAlignment.BOTTOM_RIGHT)
             .build()
 
-    val playerStatsFragment =
+    private val playerStatsFragment =
         PlayerStatsFragment(
+            screen = screen,
             player = context.player,
             width = sidebar.contentSize.width,
+            onGainLevel = { gainLevel ->
+                controller.playerGainLevel(gainLevel)
+                update(State.IN_PROGRESS)
+            },
         )
 
-    fun checkGame(status: State) {
+    private fun checkGame(status: State) {
         if (status == State.OVER) {
             replaceWith(LoseView(Controller(), grid, "Skill issue"))
         }
