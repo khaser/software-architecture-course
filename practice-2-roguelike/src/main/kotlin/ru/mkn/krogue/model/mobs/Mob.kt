@@ -1,5 +1,7 @@
 package ru.mkn.krogue.model.mobs
 
+import ru.mkn.krogue.model.Config
+import ru.mkn.krogue.model.fight.Fighter
 import ru.mkn.krogue.model.game.Context
 import ru.mkn.krogue.model.game.Unit
 import ru.mkn.krogue.model.map.Position
@@ -19,28 +21,38 @@ class Mob(
     position: Position,
     hp: Int,
     tempo: Int,
-) : Unit(position, hp, tempo) {
+    regenHpCycle: Int,
+    baseAttack: Int,
+    baseDefense: Int,
+) : Unit(position, hp, tempo, regenHpCycle, baseAttack, baseDefense), Fighter {
     private val strategy = MobStrategy.fromKind(strategyKind, context, this)
+    override val attack: Int
+        get() = baseAttack
+
+    override fun takeDamage(fighter: Fighter) {
+        takeDamage(fighter.attack - baseDefense)
+    }
 
     fun doTurn(): Position = strategy.doTurn()
 
     companion object {
         fun new(
-            mobFlavour: MobAppearance,
+            mobAppearance: MobAppearance,
             context: Context,
             position: Position,
         ): Mob {
-            return when (mobFlavour) {
-                MobAppearance.ZOMBIE -> {
-                    Mob(context, MobAppearance.ZOMBIE, MobStrategyKind.PLAYER_CHASER, position, 5, 3)
-                }
-                MobAppearance.GIANT_SUNDEW -> {
-                    Mob(context, MobAppearance.GIANT_SUNDEW, MobStrategyKind.STATIC_DAMAGE_DEALER, position, 1, 3)
-                }
-                MobAppearance.GRID_BUG -> {
-                    Mob(context, MobAppearance.GRID_BUG, MobStrategyKind.PEACEFUL_INHABITANT, position, 1, 1)
-                }
-            }
+            val mobConfig = Config.Mobs.mobSetup.getValue(mobAppearance)
+            return Mob(
+                context,
+                mobAppearance,
+                mobConfig.strategyKind,
+                position,
+                mobConfig.hp,
+                mobConfig.tempo,
+                mobConfig.regenHpCycle,
+                mobConfig.baseAttack,
+                mobConfig.baseDefense,
+            )
         }
     }
 }

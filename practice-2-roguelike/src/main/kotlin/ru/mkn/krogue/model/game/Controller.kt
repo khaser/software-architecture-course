@@ -2,9 +2,7 @@ package ru.mkn.krogue.model.game
 
 import ru.mkn.krogue.model.Item
 import ru.mkn.krogue.model.events.MobTurn
-import ru.mkn.krogue.model.events.PlayerHpRegen
 import ru.mkn.krogue.model.events.TimedGameEvent
-import ru.mkn.krogue.model.fight
 import ru.mkn.krogue.model.map.Direction
 import ru.mkn.krogue.model.map.Tile
 import ru.mkn.krogue.model.mobs.Mob
@@ -27,7 +25,6 @@ class Controller(
                 event
             },
         )
-        events.add(TimedGameEvent(0, PlayerHpRegen()))
     }
 
     private fun checkGameState() {
@@ -38,13 +35,14 @@ class Controller(
 
     private fun resumeToPlayerTurn(): State {
         checkGameState()
-
         val player = context.player
+        player.regenerateHp()
+
         val tickToStop = curTick + player.tempo
 
         while (events.isNotEmpty() && events.peek().tick < tickToStop) {
             val (tick, event) = events.poll()
-            val nextFiringTick = tick + event.execute(context)
+            val nextFiringTick = tick + event.execute(context, logger)
             val newEvent = TimedGameEvent(nextFiringTick, event)
             if (event is MobTurn) {
                 mobTurnEvent[event.mob] = newEvent
@@ -62,7 +60,7 @@ class Controller(
     fun killMobIfNeeded(it: Mob) {
         if (it.hp <= 0) {
             context.mobs.remove(it)
-            logger.log("$it was killed!")
+            logger.log("${it.appearance} was killed!")
             events.remove(mobTurnEvent[it]!!)
             mobTurnEvent.remove(it)
         }
@@ -72,7 +70,8 @@ class Controller(
         context.run {
             val newPos = player.position + dir
             getMobIn(newPos)?.let {
-                fight(player, it)
+                player.dealDamage(it)
+                logger.log("Player attacks ${it.appearance}.")
                 killMobIfNeeded(it)
                 resumeToPlayerTurn()
             }

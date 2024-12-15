@@ -1,11 +1,28 @@
 package ru.mkn.krogue.model.game
 
 import ru.mkn.krogue.model.map.Position
+import kotlin.math.min
 
 open class Unit(
     var position: Position,
-    var hp: Int,
+    val maxHp: Int,
     val tempo: Int,
+    val regenHpCycle: Int,
+    val baseAttack: Int,
+    val baseDefense: Int,
 ) {
-//    constructor(u: GameUnit): this(u.position, u.hp, u.tempo)
+    var hp = maxHp
+    private var turnsToRegenHp: Int = regenHpCycle
+
+    fun regenerateHp() {
+        if (--turnsToRegenHp == 0) {
+            turnsToRegenHp = regenHpCycle
+            hp = min(maxHp, hp + 1)
+        }
+    }
+
+    fun takeDamage(dmg: Int) {
+        turnsToRegenHp = regenHpCycle
+        hp -= dmg
+    }
 }
