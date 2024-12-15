@@ -1,43 +1,42 @@
 package ru.mkn.krogue.graphics.fragment
 
 import org.hexworks.zircon.api.Components
-import org.hexworks.zircon.api.builder.component.ParagraphBuilder
 import org.hexworks.zircon.api.component.Fragment
-import org.hexworks.zircon.api.component.Paragraph
+import org.hexworks.zircon.api.component.Label
 import ru.mkn.krogue.model.player.Player
 
 class PlayerStatsFragment(
-    player: Player,
+    val player: Player,
     val width: Int,
 ) : Fragment {
-    private fun statParagraph(text: String): Paragraph =
-        ParagraphBuilder.newBuilder()
+    private val equipmentFragment = EquipmentFragment(player.equipment, width)
+
+    private fun statLabel(text: String): Label =
+        Components.label()
             .withSize(width, 1)
             .withText(text)
             .build()
 
-    private val healthPointPar = statParagraph("HP: ${player.hp}")
-    private val attackPar = statParagraph("ATK: ${player.attack}")
-    private val defencePar = statParagraph("DEF: ${player.armor}")
+    private val healthPoint = statLabel("HP: ${player.hp}")
+    private val attack = statLabel("ATK: ${player.attack}")
+    private val defence = statLabel("DEF: ${player.armor}")
 
-    private val textBox =
-        Components.textBox(width)
-            .addParagraph(healthPointPar, true)
-            .addParagraph(attackPar, true)
-            .addParagraph(defencePar, true)
-
-    fun updateStats(player: Player) {
-        healthPointPar.text = "HP: ${player.hp}"
-        attackPar.text = "ATK: ${player.attack}"
-        defencePar.text = "DEF: ${player.armor}"
+    fun updateStats() {
+        healthPoint.text = "HP: ${player.hp}"
+        attack.text = "ATK: ${player.attack}"
+        defence.text = "DEF: ${player.armor}"
+        equipmentFragment.updateEquipment()
     }
 
     override val root =
         Components.vbox()
             .withSize(width, 30)
-            .withSpacing(1)
             .build().apply {
-                addComponent(Components.header().withText("Player"))
-                addComponent(textBox)
+                addComponent(
+                    Components.textBox(width)
+                        .addHeader("Player"),
+                )
+                addComponents(healthPoint, attack, defence)
+                addComponent(equipmentFragment.toComponent())
             }
 }

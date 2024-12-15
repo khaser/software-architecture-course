@@ -59,7 +59,7 @@ class MapBuilder(val size: Size) {
             }.shuffled()
         items =
             freeTiles.take((percentage * freeTiles.size).toInt()).associateWith {
-                val p: Item = Random.bernoulli(Armor.Jacket, Weapon.Dagger)
+                val p: Item = Random.bernoulli(Armor.LeatherArmor, Weapon.Dagger)
                 mutableListOf(p)
             }.toMutableMap()
         return this

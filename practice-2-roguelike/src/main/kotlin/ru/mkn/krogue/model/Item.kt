@@ -9,10 +9,12 @@ sealed interface Item {
 
 @Serializable
 enum class Armor(val ac: Int) : Item {
-    Jacket(2),
+    Jacket(0),
+    LeatherArmor(1),
 }
 
 @Serializable
 enum class Weapon(val at: Int) : Item {
-    Dagger(2),
+    Club(0),
+    Dagger(1),
 }

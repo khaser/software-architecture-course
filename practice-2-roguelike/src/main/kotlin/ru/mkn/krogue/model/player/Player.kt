@@ -1,6 +1,5 @@
 package ru.mkn.krogue.model.player
 
-import org.hexworks.cobalt.datatypes.Maybe
 import ru.mkn.krogue.model.Armor
 import ru.mkn.krogue.model.GameUnit
 import ru.mkn.krogue.model.Item
@@ -19,10 +18,10 @@ data class Player(
         }
 
     val attack: Int
-        get() = equipment.weapon.map { it.at }.orElse(0)
+        get() = equipment.weapon.at
 
     val armor: Int
-        get() = equipment.armor.map { it.ac }.orElse(0)
+        get() = equipment.armor.ac
 
     var hp: Int
         get() = unit.hp
@@ -38,16 +37,12 @@ data class Player(
         inventory.items.remove(item)
         when (item) {
             is Armor -> {
-                equipment.armor.map { oldArmor ->
-                    inventory.items.add(oldArmor)
-                }
-                equipment.armor = Maybe.of(item)
+                inventory.items.add(equipment.armor)
+                equipment.armor = item
             }
             is Weapon -> {
-                equipment.weapon.map { oldWeapon ->
-                    inventory.items.add(oldWeapon)
-                }
-                equipment.weapon = Maybe.of(item)
+                inventory.items.add(equipment.weapon)
+                equipment.weapon = item
             }
         }
     }

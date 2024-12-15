@@ -28,12 +28,12 @@ class InventoryDialog(gameController: GameController, inventory: Inventory, scre
                 onDrop = {
                     val status = gameController.playerDropItem(it)
                     playView.checkGame(status)
-                    playView.playerStatsFragment.updateStats(gameController.context.player)
+                    playView.playerStatsFragment.updateStats()
                 },
                 onEquip = {
                     val status = gameController.playerEquipItem(it)
                     playView.checkGame(status)
-                    playView.playerStatsFragment.updateStats(gameController.context.player)
+                    playView.playerStatsFragment.updateStats()
                 },
             )
 

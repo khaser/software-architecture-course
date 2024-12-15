@@ -3,13 +3,8 @@ package ru.mkn.krogue.graphics.fragment
 import org.hexworks.zircon.api.Components
 import org.hexworks.zircon.api.component.Fragment
 import org.hexworks.zircon.api.component.VBox
-import org.hexworks.zircon.api.data.Tile
 import ru.mkn.krogue.graphics.ViewConfig
-import ru.mkn.krogue.graphics.tile.DaggerTile
-import ru.mkn.krogue.graphics.tile.JacketTile
-import ru.mkn.krogue.model.Armor
 import ru.mkn.krogue.model.Item
-import ru.mkn.krogue.model.Weapon
 import ru.mkn.krogue.model.player.Inventory
 
 class InventoryFragment(
@@ -61,11 +56,5 @@ class InventoryFragment(
     companion object {
         const val NAME_COLUMN_WIDTH = 15
         const val ACTIONS_COLUMN_WIDTH = 10
-
-        val itemToTile: Map<Item, Tile> =
-            mapOf(
-                Weapon.Dagger to DaggerTile,
-                Armor.Jacket to JacketTile,
-            )
     }
 }

@@ -31,7 +31,7 @@ class PlayView(
 
     private val context = gameController.context
 
-    val sidebar =
+    private val sidebar =
         Components.panel()
             .withSize(ViewConfig.SideBar.size)
             .withDecorations(ComponentDecorations.box())
@@ -99,7 +99,7 @@ class PlayView(
                     }
                 }
             checkGame(status)
-            playerStatsFragment.updateStats(context.player)
+            playerStatsFragment.updateStats()
             world.update()
             Processed
         }

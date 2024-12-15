@@ -2,6 +2,7 @@ package ru.mkn.krogue.graphics.fragment
 
 import org.hexworks.zircon.api.Components
 import org.hexworks.zircon.api.component.Fragment
+import ru.mkn.krogue.graphics.tile.itemToTile
 import ru.mkn.krogue.model.Item
 
 class InventoryRowFragment(width: Int, item: Item) : Fragment {
@@ -24,7 +25,7 @@ class InventoryRowFragment(width: Int, item: Item) : Fragment {
             .build().apply {
                 addComponent(
                     Components.icon()
-                        .withIcon(InventoryFragment.itemToTile[item] ?: throw IllegalArgumentException("Unexpected $item")),
+                        .withIcon(itemToTile[item] ?: throw IllegalArgumentException("Unexpected $item")),
                 )
                 addComponent(
                     Components.label()
