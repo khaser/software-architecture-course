@@ -76,14 +76,17 @@ class GameController(
                 ?: if (map.tiles[newPos] == Tile.FLOOR) {
                     player.position = newPos
                     resumeToPlayerTurn()
+                } else if (map.tiles[newPos] == Tile.WALL) {
+                    map.tiles[newPos] = Tile.FLOOR
+                    resumeToPlayerTurn()
                 } else {
                     GameState.IN_PROGRESS
                 }
         }
 
     val playerEquipItem = { item: Item ->
-        context.player.equipItem(item)
-        resumeToPlayerTurn()
+        val oldItem = context.player.equipItem(item)
+        Pair(oldItem, resumeToPlayerTurn())
     }
 
     val playerDropItem = { item: Item ->

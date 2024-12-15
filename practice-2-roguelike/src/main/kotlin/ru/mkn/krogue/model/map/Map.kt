@@ -6,12 +6,11 @@ import kotlinx.serialization.json.Json
 import org.hexworks.zircon.api.data.Size
 import ru.mkn.krogue.model.Item
 import java.nio.file.Path
-import kotlin.collections.Map as HashMap
 
 @Serializable
 data class StoredMap(val size: Size, val tiles: List<Pair<Position, Tile>>, val items: List<Pair<Position, List<Item>>>)
 
-data class Map(val size: Size, val tiles: HashMap<Position, Tile>, val items: MutableMap<Position, MutableList<Item>>) {
+data class Map(val size: Size, val tiles: MutableMap<Position, Tile>, val items: MutableMap<Position, MutableList<Item>>) {
     fun saveToFile(path: Path) {
         val storedMap = StoredMap(size, tiles.toList(), items.toList())
         val json = Json.encodeToString(storedMap)
@@ -39,7 +38,7 @@ data class Map(val size: Size, val tiles: HashMap<Position, Tile>, val items: Mu
                 }
             return Map(
                 storedMap.size,
-                storedMap.tiles.toMap(),
+                storedMap.tiles.toMap().toMutableMap(),
                 storedMap.items.associate {
                     Pair(
                         it.first,

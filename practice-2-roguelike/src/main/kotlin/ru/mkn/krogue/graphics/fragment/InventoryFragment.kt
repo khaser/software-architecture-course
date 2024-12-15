@@ -11,7 +11,7 @@ class InventoryFragment(
     inventory: Inventory,
     width: Int,
     private val onDrop: (Item) -> Unit,
-    private val onEquip: (Item) -> Unit,
+    private val onEquip: (Item) -> Item,
 ) : Fragment {
     override val root =
         Components.vbox()
@@ -47,7 +47,7 @@ class InventoryFragment(
             }
             row.equipButton.onActivated {
                 detach()
-                onEquip(item)
+                addRow(width, onEquip(item), list)
             }
         }
         list.theme = ViewConfig.theme

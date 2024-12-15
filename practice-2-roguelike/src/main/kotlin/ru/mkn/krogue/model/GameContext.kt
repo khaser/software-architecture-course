@@ -35,7 +35,9 @@ data class GameContext(
             val playerPosition = map.getRandomFreePosition(occupiedPositions)
             val player =
                 Player(
-                    playerPosition, Config.Player.hp, Config.Player.temper,
+                    playerPosition,
+                    Config.Player.hp,
+                    Config.Player.temper,
                     Inventory(
                         mutableListOf(),
                     ),
@@ -45,7 +47,7 @@ data class GameContext(
             val mobs =
                 (0 until Config.mobCount).map {
                     val mobPosition = map.getRandomFreePosition(occupiedPositions)
-                    Mob.new(MobAppearance.ZOMBIE, context, mobPosition)
+                    Mob.new(MobAppearance.entries.shuffled().first(), context, mobPosition)
                 }
             context.mobs.addAll(mobs)
             return context

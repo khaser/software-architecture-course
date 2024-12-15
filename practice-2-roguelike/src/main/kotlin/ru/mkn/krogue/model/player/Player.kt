@@ -19,20 +19,25 @@ class Player(
 
     val armor: Int
         get() = equipment.armor.ac
+
     fun dropItem(item: Item) {
         inventory.items.remove(item)
     }
 
-    fun equipItem(item: Item) {
+    fun equipItem(item: Item): Item {
         inventory.items.remove(item)
-        when (item) {
+        return when (item) {
             is Armor -> {
-                inventory.items.add(equipment.armor)
+                val oldArmor = equipment.armor
+                inventory.items.add(oldArmor)
                 equipment.armor = item
+                oldArmor
             }
             is Weapon -> {
-                inventory.items.add(equipment.weapon)
+                val oldWeapon = equipment.weapon
+                inventory.items.add(oldWeapon)
                 equipment.weapon = item
+                oldWeapon
             }
         }
     }

@@ -44,7 +44,7 @@ class World(
                         is Weapon -> WeaponTile
                     }
                 }
-            val mob = gameContext.mobs.find { it.position == pos }?.let { listOf(MobTile) } ?: listOf()
+            val mob = gameContext.mobs.find { it.position == pos }?.let { listOf(mobToTile.getValue(it.appearance)) } ?: listOf()
             val player =
                 if (gameContext.player.position == pos) {
                     listOf(PlayerTile)

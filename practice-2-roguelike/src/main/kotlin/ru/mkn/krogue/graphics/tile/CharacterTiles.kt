@@ -5,6 +5,7 @@ import org.hexworks.zircon.api.color.TileColor
 import org.hexworks.zircon.api.data.Tile
 import org.hexworks.zircon.api.graphics.Symbols
 import ru.mkn.krogue.graphics.tile.Color.FLOOR_BACKGROUND
+import ru.mkn.krogue.model.mobs.MobAppearance
 
 object Color {
     val FLOOR_BACKGROUND = TileColor.fromString("#1e2320")
@@ -45,11 +46,32 @@ val WeaponTile =
         .withBackgroundColor(FLOOR_BACKGROUND)
         .buildCharacterTile()
 
-val MobTile =
+val ZombieTile =
     Tile.newBuilder()
-        .withCharacter('M')
+        .withCharacter('Z')
         .withForegroundColor(TileColor.fromString("#85DD1B"))
         .withBackgroundColor(FLOOR_BACKGROUND)
         .buildCharacterTile()
+
+val GridBugTile =
+    Tile.newBuilder()
+        .withCharacter('B')
+        .withForegroundColor(TileColor.fromString("#4287f5"))
+        .withBackgroundColor(FLOOR_BACKGROUND)
+        .buildCharacterTile()
+
+val GiantSundewTile =
+    Tile.newBuilder()
+        .withCharacter('S')
+        .withForegroundColor(TileColor.fromString("#f54242"))
+        .withBackgroundColor(FLOOR_BACKGROUND)
+        .buildCharacterTile()
+
+val mobToTile =
+    mapOf(
+        MobAppearance.ZOMBIE to ZombieTile,
+        MobAppearance.GRID_BUG to GridBugTile,
+        MobAppearance.GIANT_SUNDEW to GiantSundewTile,
+    )
 
 val EmptyTile = Tile.empty()

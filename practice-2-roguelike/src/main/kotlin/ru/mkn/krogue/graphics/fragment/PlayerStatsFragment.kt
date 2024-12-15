@@ -31,12 +31,18 @@ class PlayerStatsFragment(
     override val root =
         Components.vbox()
             .withSize(width, 30)
+            .withSpacing(1)
             .build().apply {
                 addComponent(
-                    Components.textBox(width)
-                        .addHeader("Player"),
+                    Components.vbox()
+                        .withSize(width, 5).build().apply {
+                            addComponent(
+                                Components.textBox(width)
+                                    .addHeader("Player"),
+                            )
+                            addComponents(healthPoint, attack, defence)
+                        },
                 )
-                addComponents(healthPoint, attack, defence)
                 addComponent(equipmentFragment.toComponent())
             }
 }

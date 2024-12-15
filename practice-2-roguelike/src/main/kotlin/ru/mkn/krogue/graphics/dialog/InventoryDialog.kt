@@ -31,9 +31,10 @@ class InventoryDialog(gameController: GameController, inventory: Inventory, scre
                     playView.playerStatsFragment.updateStats()
                 },
                 onEquip = {
-                    val status = gameController.playerEquipItem(it)
+                    val (oldItem, status) = gameController.playerEquipItem(it)
                     playView.checkGame(status)
                     playView.playerStatsFragment.updateStats()
+                    oldItem
                 },
             )
 
