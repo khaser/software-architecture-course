@@ -1,6 +1,7 @@
 package ru.mkn.krogue.model.game
 
 import ru.mkn.krogue.model.map.Position
+import kotlin.math.max
 import kotlin.math.min
 
 open class Unit(
@@ -23,6 +24,6 @@ open class Unit(
 
     fun takeDamage(dmg: Int) {
         turnsToRegenHp = regenHpCycle
-        hp -= dmg
+        hp -= max(dmg, 0)
     }
 }
