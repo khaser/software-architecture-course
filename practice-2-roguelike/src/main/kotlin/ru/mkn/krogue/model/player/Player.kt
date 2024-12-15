@@ -6,29 +6,19 @@ import ru.mkn.krogue.model.Item
 import ru.mkn.krogue.model.Weapon
 import ru.mkn.krogue.model.map.Position
 
-data class Player(
-    val unit: GameUnit,
+class Player(
+    position: Position,
+    hp: Int,
+    tempo: Int,
     val inventory: Inventory,
     val equipment: Equipment,
-) {
-    var position: Position
-        get() = unit.position
-        set(value) {
-            unit.position = value
-        }
-
+) : GameUnit(position, hp, tempo) {
+    val maxHp = hp
     val attack: Int
         get() = equipment.weapon.at
 
     val armor: Int
         get() = equipment.armor.ac
-
-    var hp: Int
-        get() = unit.hp
-        set(value) {
-            unit.hp = value
-        }
-
     fun dropItem(item: Item) {
         inventory.items.remove(item)
     }

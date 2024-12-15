@@ -20,6 +20,8 @@ data class Map(val size: Size, val tiles: HashMap<Position, Tile>, val items: Mu
         }
     }
 
+    fun getFreeAdjacentTiles(pos: Position): List<Position> = pos.adjacentBySidePositions().filter { tiles[it] == Tile.FLOOR }
+
     fun getRandomFreePosition(occupiedPositions: MutableSet<Position>): Position {
         val pos =
             size.fetchModelPositions().shuffled().first { pos ->

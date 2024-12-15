@@ -13,6 +13,21 @@ data class GameContext(
     val map: Map,
     val mobs: MutableList<Mob>,
 ) {
+    fun checkTileForUnits(pos: Position): GameUnit? {
+        if (player.position == pos) return player
+        return mobs.find { it.position == pos }
+    }
+
+    fun checkTileIsFree(pos: Position) = checkTileForUnits(pos) == null
+
+    fun checkTileIsFreeFromMobs(pos: Position): Boolean {
+        return when (checkTileForUnits(pos)) {
+            null -> true
+            is Player -> return true
+            else -> return false
+        }
+    }
+
     companion object {
         fun newFromConfig(): GameContext {
             val map = Map.generate(Config.mapSize)
@@ -20,7 +35,7 @@ data class GameContext(
             val playerPosition = map.getRandomFreePosition(occupiedPositions)
             val player =
                 Player(
-                    GameUnit(playerPosition, Config.Player.hp, Config.Player.temper),
+                    playerPosition, Config.Player.hp, Config.Player.temper,
                     Inventory(
                         mutableListOf(),
                     ),

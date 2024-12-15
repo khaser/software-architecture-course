@@ -3,29 +3,24 @@ package ru.mkn.krogue.model.mobs
 import ru.mkn.krogue.model.GameContext
 import ru.mkn.krogue.model.GameUnit
 import ru.mkn.krogue.model.map.Position
-import ru.mkn.krogue.model.mobs.strategy.MobStrategy
-import ru.mkn.krogue.model.mobs.strategy.StaticMobStrategy
+import ru.mkn.krogue.model.mobs.strategy.*
 
 enum class MobAppearance {
     ZOMBIE,
+    GIANT_SUNDEW,
+    GRID_BUG,
+//    LEPRECON with stealing mechanic
 }
 
 class Mob(
+    context: GameContext,
     val appearance: MobAppearance,
-    private val strategy: MobStrategy,
-) {
-    val unit: GameUnit = strategy.unit
-
-    var position: Position
-        get() = unit.position
-        set(value) {
-            unit.position = value
-        }
-    var hp: Int
-        get() = unit.hp
-        set(value) {
-            unit.hp = value
-        }
+    strategyKind: MobStrategyKind,
+    position: Position,
+    hp: Int,
+    tempo: Int,
+) : GameUnit(position, hp, tempo) {
+    private val strategy = MobStrategy.fromKind(strategyKind, context, this)
 
     fun doTurn(): Position = strategy.doTurn()
 
@@ -37,8 +32,13 @@ class Mob(
         ): Mob {
             return when (mobFlavour) {
                 MobAppearance.ZOMBIE -> {
-                    val unit = GameUnit(position, 5, 3)
-                    Mob(MobAppearance.ZOMBIE, StaticMobStrategy(context, unit))
+                    Mob(context, MobAppearance.ZOMBIE, MobStrategyKind.PLAYER_CHASER, position, 5, 3)
+                }
+                MobAppearance.GIANT_SUNDEW -> {
+                    Mob(context, MobAppearance.GIANT_SUNDEW, MobStrategyKind.STATIC_DAMAGE_DEALER, position, 1, 3)
+                }
+                MobAppearance.GRID_BUG -> {
+                    Mob(context, MobAppearance.GRID_BUG, MobStrategyKind.PEACEFUL_INHABITANT, position, 1, 1)
                 }
             }
         }

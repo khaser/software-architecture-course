@@ -1,9 +1,11 @@
 package ru.mkn.krogue.model
 
 import ru.mkn.krogue.model.events.MobTurn
+import ru.mkn.krogue.model.events.PlayerHpRegen
 import ru.mkn.krogue.model.events.TimedGameEvent
 import ru.mkn.krogue.model.map.Direction
 import ru.mkn.krogue.model.map.Tile
+import ru.mkn.krogue.model.mobs.Mob
 import java.util.PriorityQueue
 
 enum class GameState {
@@ -17,12 +19,17 @@ class GameController(
     private var state = GameState.IN_PROGRESS
     private var curTick = 0
     private val events = PriorityQueue<TimedGameEvent>()
+    private val mobTurnEvent = mutableMapOf<Mob, TimedGameEvent>()
 
     init {
-        context.mobs.forEach { mob ->
-            val turnEvent = MobTurn(mob)
-            events.add(TimedGameEvent(0, turnEvent))
-        }
+        events.addAll(
+            context.mobs.map {
+                val event = TimedGameEvent(0, MobTurn(it))
+                mobTurnEvent[it] = event
+                event
+            },
+        )
+        events.add(TimedGameEvent(0, PlayerHpRegen()))
     }
 
     private fun checkGameState() {
@@ -35,12 +42,16 @@ class GameController(
         checkGameState()
 
         val player = context.player
-        val tickToStop = curTick + player.unit.tempo
+        val tickToStop = curTick + player.tempo
 
         while (events.isNotEmpty() && events.peek().tick < tickToStop) {
             val (tick, event) = events.poll()
             val nextFiringTick = tick + event.execute(context)
-            events.add(TimedGameEvent(nextFiringTick, event))
+            val newEvent = TimedGameEvent(nextFiringTick, event)
+            if (event is MobTurn) {
+                mobTurnEvent[event.mob] = newEvent
+            }
+            events.add(newEvent)
         }
         curTick = tickToStop
 
@@ -50,15 +61,25 @@ class GameController(
         return state
     }
 
-    fun movePlayer(dir: Direction): GameState {
+    fun movePlayer(dir: Direction): GameState =
         context.run {
             val newPos = player.position + dir
-            if (map.tiles[newPos] == Tile.FLOOR) {
-                player.position = newPos
+            return checkTileForUnits(newPos)?.let {
+                fight(player, it)
+                if (it.hp <= 0) {
+                    mobs.remove(it)
+                    events.remove(mobTurnEvent[it]!!)
+                    mobTurnEvent.remove(it)
+                }
+                resumeToPlayerTurn()
             }
+                ?: if (map.tiles[newPos] == Tile.FLOOR) {
+                    player.position = newPos
+                    resumeToPlayerTurn()
+                } else {
+                    GameState.IN_PROGRESS
+                }
         }
-        return resumeToPlayerTurn()
-    }
 
     val playerEquipItem = { item: Item ->
         context.player.equipItem(item)
