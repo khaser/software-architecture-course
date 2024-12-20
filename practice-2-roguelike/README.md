@@ -3,7 +3,7 @@ krogue - это roguelike игра с тайловой [графикой](https:
 
 Авторы: Кирилл Митькин, Андрей Хорохорин
 
-### Class project diagram
+### Диаграмма иерархии классов
 
 ![Class diagram](./uml/rendered/class_diagram.png)
 
@@ -17,6 +17,16 @@ krogue - это roguelike игра с тайловой [графикой](https:
   посредством паттерном команда в api Controller.
 
 ![Component_diagram](./uml/rendered/component_diagram.png)
+
+### Диаграмма состояний UI
+
+![UI_state_diagram](./uml/rendered/ui_state_diagram.png)
+
+### Диаграмма последовательности событий при ходе игрока
+Ниже приведена диаграмма последовательность событий при запросе игрока движения в определённом направлении.
+в ответ.
+
+![Sequence_diagram](./uml/rendered/sequence_diagram.png)
 
 ### Роли и случаи использования
 
@@ -78,7 +88,3 @@ krogue - это roguelike игра с тайловой [графикой](https:
 убегать, когда здоровье моба опускается ниже определённого значения.
 
 ![Withdrawer_strategy](./uml/rendered/withdrawer_strategy.png)
-
-### UI State diagram
-
-![UI_state_diagram](./uml/rendered/ui_state_diagram.png)
