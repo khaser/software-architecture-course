@@ -21,7 +21,7 @@ open class Mob(
     unit: Unit,
     val appearance: MobAppearance,
     val xp: Int,
-    val strategyKind: MobStrategyKind,
+    strategyKind: MobStrategyKind,
 ) : Unit(unit), Fighter {
     protected val strategy = MobStrategy.fromKind(strategyKind, context, this)
 
