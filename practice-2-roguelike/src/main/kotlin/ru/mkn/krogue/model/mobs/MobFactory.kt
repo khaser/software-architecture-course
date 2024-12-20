@@ -1,12 +1,14 @@
 package ru.mkn.krogue.model.mobs
 
 import ru.mkn.krogue.model.game.Context
+import ru.mkn.krogue.model.game.Logger
 import ru.mkn.krogue.model.map.Position
 import kotlin.random.Random
 
 interface MobFactory {
     val context: Context
-    val registerMob: (Mob) -> kotlin.Unit
+    val logger: Logger
+    val registerMob: (Mob) -> Unit
 
     fun newAverageEnemy(position: Position): AverageEnemy
 
@@ -33,27 +35,55 @@ interface MobFactory {
     }
 }
 
-class FantasyMobFactory(override val context: Context, override val registerMob: (Mob) -> kotlin.Unit) : MobFactory {
-    override fun newAverageEnemy(position: Position): AverageEnemy = AverageEnemy(context, position, MobAppearance.ZOMBIE)
+class FantasyMobFactory(
+    override val context: Context,
+    override val logger: Logger,
+    override val registerMob: (Mob) -> Unit,
+) : MobFactory {
+    override fun newAverageEnemy(position: Position): AverageEnemy = AverageEnemy(context, logger, position, MobAppearance.ZOMBIE)
 
-    override fun newStaticEnemy(position: Position): StaticEnemy = StaticEnemy(context, position, MobAppearance.GIANT_SUNDEW)
+    override fun newStaticEnemy(position: Position): StaticEnemy = StaticEnemy(context, logger, position, MobAppearance.GIANT_SUNDEW)
 
     override fun newPeacefulInhabitant(position: Position): PeacefulInhabitant =
-        PeacefulInhabitant(context, position, MobAppearance.GRID_BUG)
+        PeacefulInhabitant(context, logger, position, MobAppearance.GRID_BUG)
 
-    override fun newCowardEnemy(position: Position): CowardEnemy = CowardEnemy(context, position, MobAppearance.DWARF)
+    override fun newCowardEnemy(position: Position): CowardEnemy = CowardEnemy(context, logger, position, MobAppearance.DWARF)
 
-    override fun newReplicantEnemy(position: Position): ReplicantEnemy = ReplicantEnemy(context, position, MobAppearance.SLIME, registerMob)
+    override fun newReplicantEnemy(position: Position): ReplicantEnemy =
+        ReplicantEnemy(
+            context,
+            logger,
+            position,
+            MobAppearance.SLIME,
+            registerMob,
+        )
 }
 
-class ScientificMobFactory(override val context: Context, override val registerMob: (Mob) -> kotlin.Unit) : MobFactory {
-    override fun newAverageEnemy(position: Position): AverageEnemy = AverageEnemy(context, position, MobAppearance.ROBOT)
+class ScientificMobFactory(
+    override val context: Context,
+    override val logger: Logger,
+    override val registerMob: (Mob) -> Unit,
+) : MobFactory {
+    override fun newAverageEnemy(position: Position): AverageEnemy = AverageEnemy(context, logger, position, MobAppearance.ROBOT)
 
-    override fun newStaticEnemy(position: Position): StaticEnemy = StaticEnemy(context, position, MobAppearance.WIRE)
+    override fun newStaticEnemy(position: Position): StaticEnemy = StaticEnemy(context, logger, position, MobAppearance.WIRE)
 
-    override fun newPeacefulInhabitant(position: Position): PeacefulInhabitant = PeacefulInhabitant(context, position, MobAppearance.ALIEN)
+    override fun newPeacefulInhabitant(position: Position): PeacefulInhabitant =
+        PeacefulInhabitant(
+            context,
+            logger,
+            position,
+            MobAppearance.ALIEN,
+        )
 
-    override fun newCowardEnemy(position: Position): CowardEnemy = CowardEnemy(context, position, MobAppearance.RANGER)
+    override fun newCowardEnemy(position: Position): CowardEnemy = CowardEnemy(context, logger, position, MobAppearance.RANGER)
 
-    override fun newReplicantEnemy(position: Position): ReplicantEnemy = ReplicantEnemy(context, position, MobAppearance.CLONE, registerMob)
+    override fun newReplicantEnemy(position: Position): ReplicantEnemy =
+        ReplicantEnemy(
+            context,
+            logger,
+            position,
+            MobAppearance.CLONE,
+            registerMob,
+        )
 }

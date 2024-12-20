@@ -15,11 +15,14 @@ class Experience {
     var level: Int = 0
         private set
 
+    var levelPoints: Int = 0
+
     fun getPoints(points: Int) {
         this.points += points
         if (Config.Player.Experience.pointsToUpgrade(level) <= this.points) {
             this.points = 0
             level += 1
+            levelPoints += 1
         }
     }
 }

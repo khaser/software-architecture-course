@@ -41,11 +41,11 @@ data class Context(
                 Player(
                     Unit(
                         playerPosition,
-                        Config.Player.hp,
-                        Config.Player.temper,
-                        Config.Player.regenHpCycle,
-                        Config.Player.attack,
-                        Config.Player.defense,
+                        Config.Player.HP,
+                        Config.Player.TEMPO,
+                        Config.Player.REGEN_HP_CYCLE,
+                        Config.Player.ATTACK,
+                        Config.Player.DEFENCE,
                     ),
                     Inventory(
                         mutableListOf(),

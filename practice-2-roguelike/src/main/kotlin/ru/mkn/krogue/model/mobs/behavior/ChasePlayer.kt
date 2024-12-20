@@ -13,7 +13,7 @@ internal class ChasePlayer : Behavior {
     ): Position =
         context.run {
             val desiredPos =
-                if (unit.position.distance(player.position) > Config.mobIntuitionDistance) {
+                if (unit.position.distance(player.position) > Config.MOB_INTUITION_DISTANCE) {
                     Roam().doTurn(this, unit)
                 } else {
                     map.findPath(unit.position, player.position)?.first() ?: Roam().doTurn(this, unit)

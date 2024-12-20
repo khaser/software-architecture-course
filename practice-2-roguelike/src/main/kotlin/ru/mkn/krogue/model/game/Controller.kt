@@ -9,7 +9,6 @@ import ru.mkn.krogue.model.map.Tile
 import ru.mkn.krogue.model.mobs.Mob
 import ru.mkn.krogue.model.player.LevelUPStat
 import java.util.PriorityQueue
-import kotlin.random.Random
 
 class Controller(
     val context: Context = Context.newFromConfig(),
@@ -21,20 +20,15 @@ class Controller(
     private val mobTurnEvent = mutableMapOf<Mob, TimedGameEvent>()
 
     init {
-        val fantasyMobFactory = Config.Mobs.factory(context, ::registerWithLog)
+        val fantasyMobFactory = Config.Mobs.factory(context, logger, ::register)
         context.run {
             val occupiedPositions = mutableSetOf(player.position)
-            (0 until Config.mobCount).map {
+            (0 until Config.MOB_COUNT).map {
                 val mobPosition = map.getRandomFreePosition(occupiedPositions)
                 register(fantasyMobFactory.newRandomMob(mobPosition))
                 occupiedPositions.add(mobPosition)
             }
         }
-    }
-
-    private fun registerWithLog(mob: Mob) {
-        logger.log("${mob.appearance} was spawned!")
-        register(mob)
     }
 
     private fun register(mob: Mob) {
@@ -93,10 +87,6 @@ class Controller(
             getMobIn(newPos)?.let {
                 player.dealDamage(it)
                 logger.log("Player attacks ${it.appearance}.")
-                if (Random.nextDouble() < Config.Mobs.confusingProb) {
-                    it.confusedTurnCount = Config.Mobs.confusingTurnCount
-                    logger.log("${it.appearance} now is confused.")
-                }
                 killMobIfNeeded(it)
                 resumeToPlayerTurn()
             }
@@ -143,6 +133,10 @@ class Controller(
 
     val playerGainLevel = { choice: LevelUPStat ->
         context.run {
+            if (player.experience.levelPoints <= 0) {
+                throw IllegalCallerException("We have no level points to use!")
+            }
+            player.experience.levelPoints -= 1
             when (choice) {
                 LevelUPStat.HP -> {
                     player.maxHp += 5
