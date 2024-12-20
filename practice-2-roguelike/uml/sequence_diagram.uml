@@ -1,11 +1,11 @@
 @startuml
 PlayView -> GameController : playerMoveTo(direction)
-GameController -> GameContext : getMobIn(position)
+GameController -> Context : getMobIn(position)
 alt position occupied by mob
-    GameController <- GameContext : mob
+    GameController <- Context : mob
     GameController -> Player : dealDamage(mob)
     alt mob killed
-        GameController -> GameContext : mobs.remove(mob)
+        GameController -> Context : mobs.remove(mob)
         GameController -> GameController : deschedule killed mob turn
         GameController -> Player : experience.addPoints
     end
