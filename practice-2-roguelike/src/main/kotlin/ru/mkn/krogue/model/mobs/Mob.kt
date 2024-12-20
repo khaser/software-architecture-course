@@ -1,7 +1,7 @@
 package ru.mkn.krogue.model.mobs
 
-import ru.mkn.krogue.model.Config
 import ru.mkn.krogue.model.fight.Fighter
+import ru.mkn.krogue.model.game.Config
 import ru.mkn.krogue.model.game.Context
 import ru.mkn.krogue.model.game.Logger
 import ru.mkn.krogue.model.game.Unit

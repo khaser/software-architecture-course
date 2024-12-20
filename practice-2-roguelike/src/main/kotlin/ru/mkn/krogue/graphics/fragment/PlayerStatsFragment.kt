@@ -5,7 +5,7 @@ import org.hexworks.zircon.api.component.Fragment
 import org.hexworks.zircon.api.component.Label
 import org.hexworks.zircon.api.screen.Screen
 import ru.mkn.krogue.graphics.dialog.LevelUpDialog
-import ru.mkn.krogue.model.Config.Player.Experience.pointsToUpgrade
+import ru.mkn.krogue.model.game.Config.Player.Experience.pointsToUpgrade
 import ru.mkn.krogue.model.player.LevelUPStat
 import ru.mkn.krogue.model.player.Player
 

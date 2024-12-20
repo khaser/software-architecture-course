@@ -1,6 +1,6 @@
 package ru.mkn.krogue.model.player
 
-import ru.mkn.krogue.model.Config
+import ru.mkn.krogue.model.game.Config
 
 enum class LevelUPStat {
     HP,

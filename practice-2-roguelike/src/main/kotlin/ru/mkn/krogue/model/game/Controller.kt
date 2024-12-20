@@ -1,6 +1,5 @@
 package ru.mkn.krogue.model.game
 
-import ru.mkn.krogue.model.Config
 import ru.mkn.krogue.model.Item
 import ru.mkn.krogue.model.events.MobTurn
 import ru.mkn.krogue.model.events.TimedGameEvent

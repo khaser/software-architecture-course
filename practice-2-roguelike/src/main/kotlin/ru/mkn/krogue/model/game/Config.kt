@@ -1,4 +1,4 @@
-package ru.mkn.krogue.model
+package ru.mkn.krogue.model.game
 
 import org.hexworks.zircon.api.data.Size
 import ru.mkn.krogue.model.mobs.FantasyMobFactory

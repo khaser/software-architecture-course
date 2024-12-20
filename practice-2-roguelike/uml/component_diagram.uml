@@ -1,0 +1,41 @@
+@startuml
+
+component View {
+    [StartView]
+    [LoseView]
+    [PlayView]
+
+    PlayView - StartView
+    'StartView - LoseView
+    LoseView -- PlayView
+}
+
+component Controller {
+    [EventQueue]
+
+    portin api
+    'portout context
+}
+
+PlayView -right- "Commands"
+"Commands" --> api
+
+Controller --> "Log line"
+"Log line" -left- [Logger]
+
+component Model {
+    [Map]
+    [Player]
+    [Mobs]
+
+
+
+    portin context
+}
+
+Controller --> context
+context -> Player
+context -> Map
+context -> Mobs
+
+@enduml

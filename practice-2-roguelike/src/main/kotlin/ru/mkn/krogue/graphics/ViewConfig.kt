@@ -3,7 +3,7 @@ package ru.mkn.krogue.graphics
 import org.hexworks.zircon.api.ColorThemes
 import org.hexworks.zircon.api.GraphicalTilesetResources
 import org.hexworks.zircon.api.data.Size
-import ru.mkn.krogue.model.Config
+import ru.mkn.krogue.model.game.Config
 
 object ViewConfig {
     val tileset = GraphicalTilesetResources.nethack16x16()
