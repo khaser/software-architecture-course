@@ -1,28 +1,76 @@
 package ru.mkn.krogue.model.mobs
 
-import ru.mkn.krogue.model.Config
 import ru.mkn.krogue.model.fight.Fighter
 import ru.mkn.krogue.model.game.Context
 import ru.mkn.krogue.model.game.Unit
 import ru.mkn.krogue.model.map.Position
 import ru.mkn.krogue.model.mobs.behavior.Roam
 import ru.mkn.krogue.model.mobs.strategy.*
+import kotlin.random.Random
 
-enum class MobAppearance {
-    ZOMBIE,
-    GIANT_SUNDEW,
-    GRID_BUG,
-    DWARF,
-    SLIME,
+class AverageEnemy(context: Context, position: Position, override val appearance: MobAppearance) : Mob(
+    context,
+    Unit(position, 5, 3, 7, 1, 0),
+    5,
+    MobStrategyKind.PLAYER_CHASER,
+)
+
+class StaticEnemy(context: Context, position: Position, override val appearance: MobAppearance) : Mob(
+    context,
+    Unit(position, 1, 3, 1, 2, 0),
+    1,
+    MobStrategyKind.STATIC_DAMAGE_DEALER,
+)
+
+class PeacefulInhabitant(context: Context, position: Position, override val appearance: MobAppearance) : Mob(
+    context,
+    Unit(position, 2, 1, 5, 0, 0),
+    1,
+    MobStrategyKind.PEACEFUL_INHABITANT,
+)
+
+class CowardEnemy(context: Context, position: Position, override val appearance: MobAppearance) : Mob(
+    context,
+    Unit(position, 8, 4, 5, 1, 1),
+    10,
+    MobStrategyKind.WITHDRAWER,
+)
+
+class ReplicantEnemy(
+    context: Context,
+    position: Position,
+    override val appearance: MobAppearance,
+    private val registerMob: (Mob) -> kotlin.Unit,
+) :
+    Mob(
+            context,
+            Unit(position, 2, 4, 7, 1, 0),
+            5,
+            MobStrategyKind.PLAYER_CHASER,
+        ),
+        Cloneable {
+    override fun dealDamage(fighter: Fighter) =
+        strategy.context.run {
+            if (Random.nextDouble() > 0.5) {
+                map.getFreeAdjacentTiles(position).firstOrNull { isFree(it) }?.let {
+                    val clone = clone()
+                    clone.position = it
+                    registerMob(clone)
+                }
+            }
+            super.dealDamage(fighter)
+        }
+
+    override fun clone(): ReplicantEnemy = ReplicantEnemy(strategy.context, position, appearance, registerMob)
 }
 
-open class Mob(
+sealed class Mob(
     context: Context,
     unit: Unit,
-    val appearance: MobAppearance,
     val xp: Int,
-    protected val strategyKind: MobStrategyKind,
+    strategyKind: MobStrategyKind,
 ) : Unit(unit), Fighter {
+    abstract val appearance: MobAppearance
     protected val strategy = MobStrategy.fromKind(strategyKind, context, this)
 
     private var confusedTurnCount = 0
@@ -40,50 +88,4 @@ open class Mob(
         } else {
             strategy.doTurn()
         }
-
-    companion object {
-        fun new(
-            mobAppearance: MobAppearance,
-            context: Context,
-            position: Position,
-            spawnMob: (Boolean) -> (Mob) -> kotlin.Unit,
-        ): Mob {
-            val mobConfig = Config.Mobs.mobSetup.getValue(mobAppearance)
-            val mob =
-                if (mobAppearance != MobAppearance.SLIME) {
-                    Mob(
-                        context,
-                        Unit(
-                            position,
-                            mobConfig.hp,
-                            mobConfig.tempo,
-                            mobConfig.regenHpCycle,
-                            mobConfig.baseAttack,
-                            mobConfig.baseDefense,
-                        ),
-                        mobAppearance,
-                        mobConfig.xp,
-                        mobConfig.strategyKind,
-                    )
-                } else {
-                    MobReplicator(
-                        context,
-                        Unit(
-                            position,
-                            mobConfig.hp,
-                            mobConfig.tempo,
-                            mobConfig.regenHpCycle,
-                            mobConfig.baseAttack,
-                            mobConfig.baseDefense,
-                        ),
-                        mobAppearance,
-                        mobConfig.xp,
-                        mobConfig.strategyKind,
-                        spawnMob,
-                    )
-                }
-            spawnMob(false)(mob)
-            return mob
-        }
-    }
 }

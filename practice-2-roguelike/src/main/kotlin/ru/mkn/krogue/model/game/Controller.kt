@@ -7,7 +7,6 @@ import ru.mkn.krogue.model.events.TimedGameEvent
 import ru.mkn.krogue.model.map.Direction
 import ru.mkn.krogue.model.map.Tile
 import ru.mkn.krogue.model.mobs.Mob
-import ru.mkn.krogue.model.mobs.MobAppearance
 import ru.mkn.krogue.model.player.LevelUPStat
 import java.util.PriorityQueue
 import kotlin.random.Random
@@ -21,29 +20,30 @@ class Controller(
     private val events = PriorityQueue<TimedGameEvent>()
     private val mobTurnEvent = mutableMapOf<Mob, TimedGameEvent>()
 
-    private val spawnMob = { shouldLog: Boolean ->
-        { mob: Mob ->
-            if (shouldLog) {
-                logger.log("${mob.appearance} was replicated!")
-            }
-            context.run {
-                val event = TimedGameEvent(curTick + mob.tempo, MobTurn(mob))
-                mobTurnEvent[mob] = event
-                events.add(event)
-                mobs.add(mob)
-                Unit
-            }
-        }
-    }
-
     init {
+        val fantasyMobFactory = Config.Mobs.factory(context, ::registerWithLog)
         context.run {
             val occupiedPositions = mutableSetOf(player.position)
             (0 until Config.mobCount).map {
                 val mobPosition = map.getRandomFreePosition(occupiedPositions)
-                Mob.new(MobAppearance.entries.shuffled().first(), context, mobPosition, spawnMob)
+                register(fantasyMobFactory.newRandomMob(mobPosition))
                 occupiedPositions.add(mobPosition)
             }
+        }
+    }
+
+    private fun registerWithLog(mob: Mob) {
+        logger.log("${mob.appearance} was spawned!")
+        register(mob)
+    }
+
+    private fun register(mob: Mob) {
+        context.run {
+            val event = TimedGameEvent(curTick + mob.tempo, MobTurn(mob))
+            mobTurnEvent[mob] = event
+            events.add(event)
+            mobs.add(mob)
+            Unit
         }
     }
 

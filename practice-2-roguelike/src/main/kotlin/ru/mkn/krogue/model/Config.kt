@@ -1,8 +1,7 @@
 package ru.mkn.krogue.model
 
 import org.hexworks.zircon.api.data.Size
-import ru.mkn.krogue.model.mobs.MobAppearance
-import ru.mkn.krogue.model.mobs.strategy.MobStrategyKind
+import ru.mkn.krogue.model.mobs.FantasyMobFactory
 
 object Config {
     val mapSize = Size.create(80, 50)
@@ -27,23 +26,6 @@ object Config {
         val confusingProb = 0.5
         val confusingTurnCount = 2
 
-        data class MobConfig(
-            val strategyKind: MobStrategyKind,
-            val xp: Int,
-            val hp: Int,
-            val tempo: Int,
-            val regenHpCycle: Int,
-            val baseAttack: Int,
-            val baseDefense: Int,
-        )
-
-        val mobSetup =
-            mapOf(
-                MobAppearance.ZOMBIE to MobConfig(MobStrategyKind.PLAYER_CHASER, 5, 5, 3, 7, 1, 0),
-                MobAppearance.GIANT_SUNDEW to MobConfig(MobStrategyKind.STATIC_DAMAGE_DEALER, 3, 1, 3, 1, 2, 0),
-                MobAppearance.GRID_BUG to MobConfig(MobStrategyKind.PEACEFUL_INHABITANT, 1, 2, 1, 5, 0, 0),
-                MobAppearance.DWARF to MobConfig(MobStrategyKind.WITHDRAWER, 10, 8, 4, 5, 1, 1),
-                MobAppearance.SLIME to MobConfig(MobStrategyKind.PLAYER_CHASER, 5, 2, 4, 7, 1, 0),
-            )
+        val factory = ::FantasyMobFactory
     }
 }
