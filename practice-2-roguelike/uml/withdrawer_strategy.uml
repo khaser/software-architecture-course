@@ -1,0 +1,7 @@
+@startuml
+[*] --> ChasePlayer
+ChasePlayer -> Flee : mobHp < 0.5 * maxHp
+ChasePlayer: mob follows `ChasePlayer` strategy
+Flee -> ChasePlayer : mobHp >= 0.8 * maxHp
+Flee: mob follows `Flee` strategy
+@enduml

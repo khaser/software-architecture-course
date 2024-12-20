@@ -1,0 +1,31 @@
+@startuml
+!pragma useVerticalIf on
+start
+:dirs is empty list;
+switch (player position x - unit position x)
+case (equal 0)
+:dirs += RIGHT + LEFT;
+case (> 0)
+:dirs += LEFT;
+case (< 0)
+:dirs += RIGHT;
+endswitch
+switch (player position y - unit position y)
+case (equal 0)
+:dirs += UP + DOWN;
+case (> 0)
+:dirs += UP;
+case (< 0)
+:dirs += DOWN;
+endswitch
+if (peek random direction from dirs which leads to free ceil) then (dir)
+  :goto dir;
+else (not such direction)
+  if (player in adjacent ceil) then (yes)
+    :attack player;
+  else (no)
+    :remain in place;
+  endif
+endif
+stop
+@enduml
