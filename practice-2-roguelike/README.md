@@ -1,5 +1,5 @@
 # krogue
-krogue это roguelike игра написанная на ЯП Kotlin
+krogue - это roguelike игра с тайловой [графикой](https://github.com/Hexworks/zircon), написанная на Kotlin.
 
 Авторы: Кирилл Митькин, Андрей Хорохорин
 

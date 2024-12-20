@@ -8,7 +8,7 @@ import ru.mkn.krogue.model.Item
 import java.nio.file.Path
 
 @Serializable
-data class StoredMap(val size: Size, val tiles: List<Pair<Position, Tile>>, val items: List<Pair<Position, List<Item>>>)
+data class StoredMap(val size: Pair<Int, Int>, val tiles: List<Pair<Position, Tile>>, val items: List<Pair<Position, List<Item>>>)
 
 data class Map(
     val size: Size,
@@ -16,7 +16,7 @@ data class Map(
     val items: MutableMap<Position, MutableList<Item>>,
 ) {
     fun saveToFile(path: Path) {
-        val storedMap = StoredMap(size, tiles.toList(), items.toList())
+        val storedMap = StoredMap(Pair(size.width, size.height), tiles.toList(), items.toList())
         val json = Json.encodeToString(storedMap)
         path.toFile().printWriter().use { out ->
             out.println(json)
@@ -41,7 +41,7 @@ data class Map(
                     Json.decodeFromString<StoredMap>(r.readText())
                 }
             return Map(
-                storedMap.size,
+                Size.create(storedMap.size.first, storedMap.size.second),
                 storedMap.tiles.toMap().toMutableMap(),
                 storedMap.items.associate {
                     Pair(
