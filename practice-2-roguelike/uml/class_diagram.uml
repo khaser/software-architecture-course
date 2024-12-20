@@ -1,124 +1,311 @@
 @startuml
-class Main
-note left: Парсинг аргументов, инициализация Game, UI.
 
-class GameController {
-    FightResult fight(fighter attacker, fighter target)
+package events {
+
+    interface GameEvent {
+        execute(context, logger): Int
+    }
+
+    note bottom of GameEvent
+        "execute" return number of ticks before next event execution
+    end note
+
+    class MobTurn {
+        mob: Mob
+    }
+
+    class TimedGameEvent {
+        tick: Int
+        event: GameEvent
+    }
+
+    GameEvent <|-- MobTurn
+    TimedGameEvent *- GameEvent
 }
 
-note right : Является верхним классом доменной модели игры.\n\
-Инкапсулирует в себе всю игровую логику от UI.\n\
-Сам должен содержать только логику игровых тиков,\n\
-в остальном должен пользоваться дочерними объектами.
+package game {
 
-enum FightResult {
-  HIT(hp)
-  MISS
+    class Config << (S,#FF7700) Singleton >>
+    note bottom
+    Accessible from everywhere and stores all the settings
+    that can be interesting to quickly change
+    in order to balance the complexity of the game.
+    end note
+
+    class GameController {
+        playerMoveTo: (Direction) -> State
+        playerEquipItem: (Item) -> (Item, State)
+        playerDropItem: (Item) -> State
+        playerPickItem: () -> State
+        playerSkip: () -> State
+        playerGainLevel: (LevelUPStat) -> State
+    }
+
+    note bottom
+    It is the top class of the domain model of the game.
+    It encapsulates all the game logic from the UI through command lambdas.
+
+    Also it schedule execution of game events.
+    end note
+
+    class Logger {
+        log(line: String)
+        consumeLog(): [String]
+    }
+    GameController *- Logger
+
+    class Context {
+        {static} newFromConfig(): Context
+        getMobIn(pos: Position): Mob?
+        getUnitIn(pos: Position): Mob?
+        isFree(pos: Position): Boolean
+        isFreeFromMobs(pos: Position): Boolean
+    }
+    GameController *-- Context
+
+    enum State {
+        IN_PROGRESS,
+        OVER,
+    }
+
+    class Unit {
+        pos: Position,
+        baseAttack: Int,
+        baseDefense: Int,
+        - turnsToRegenerateHp: Int
+
+        regenerateHp()
+        takeDamage(int dmg)
+        int getTempo()
+        int getMaxHp()
+    }
+    note left : RegenerateHp must be called on every turn
+
 }
 
-class Map {
-    tiles: Map(Position -> Floor|Wall)
-    items: Map(Position -> [Items])
+
+package graphics {
+
+    class World {
+        update()
+    }
+    note right : хранит состояние UI
+
+    package view {
+
+        class PlayView {
+            update(State)
+        }
+        PlayView --o GameController
+        PlayView *-- World
+
+        class LoseView {
+            update(State)
+        }
+        class StartView {
+            update(State)
+        }
+    }
+
+    package tile {
+        entity DaggerTile <<Tile>>
+        entity JacketTile <<Tile>>
+        entity FloorTile <<Tile>>
+        entity WallTile <<Tile>>
+        entity itemToTile <<Map(Item to Tile)>>
+    }
+
+    package dialog {
+        class CloseButton
+        abstract Dialog
+        class InventoryDialog
+        class LevelUpDialog
+        Dialog <|-- InventoryDialog
+        Dialog <|-- LevelUpDialog
+    }
+
+    tile <|-[hidden]- dialog
 }
 
-Map *-- Item
+interface Item {}
 
-class "GameContext" as GameBuilder <? extends MobsFabric> <<companion>> {
-    loadFile(filename)
-    generate(width, height)
+enum Armor {
+    ac: Int
+    JACKET(0)
+    LEATHER_ARMOR(1)
+}
+enum Weapon {
+    attack: Int
+    CLUB(0)
+    DAGGER(1)
 }
 
-
-class "Map" as MapBuilder <<companion>> {
-    loadFile(filename)
-    generate(width, height)
-}
-
-class UI {
-    UI(gameController)
-}
-
-class Player {
-}
-
-Interface Fighter {
-    int getEvasion()
-    int getArmor()
-    int dealDamage(fighter target)
-    int takeDamage(hp)
-}
-
-class Experience {
-}
-
-class Inventory {
-}
-
-interface Item {
-
-}
-
-abstract MobStrategy {
-    doTurn(curHp, curPosition): Position
-}
-
-abstract Mob {
-    private int hp, xp;
-    doTurn()
-    Mob(GameController, Position, MobStrategy)
-    getHp(), getXP()
-}
-
-class ConfusedMobDecorator {
-    - Mob mob
-    - int confusionDuration
-    doTurn()
-}
-
-class Position {
-    int x, y;
-}
-
-Main *- Args
-Main *-- GameBuilder
-GameBuilder --> MapBuilder : use
-
-Main *-- GameController
-GameController *-- GameContext
-GameController *-- Fight
-
-GameContext <-- "produces" GameBuilder
-Map <-- MapBuilder : "produces" 
-
-GameContext *-- Player
-GameContext "1" *-- "*" Mob
-GameContext *-- Map
-
-GameController -- FightResult
-
-UI --> GameController
-Main *- UI
-
-Mob *-- Position
-Mob --> MobStrategy
-Player *-- Position
-
-Mob <|-- Zombie
-Mob <|-- AcidBlob
-Mob <|-- ConfusedMobDecorator
-
-MobStrategy <|-- AggressiveStrategy
-MobStrategy <|-- PassiveStrategy
-MobStrategy <|-- СautiousStrategy
-MobStrategy --> GameContext
-
-Player *-- Inventory
-Inventory "1" *-- "*" Item
 Item <|-- Armor
 Item <|-- Weapon
 
-Player *-- Experience
-Fighter <|-- Player
-Fighter <|-- Mob
+package map {
+
+    class Map {
+        tiles: Map(Position -> Floor|Wall)
+        items: Map(Position -> [Items])
+        findPath(Position start, Position finish): [Position]
+        {static} loadFromFile(String filename)
+        {static} generate(Size sz)
+    }
+
+    Map *-- Item
+
+    enum Direction {
+        RIGHT,
+        LEFT,
+        UP,
+        DOWN,
+    }
+
+    enum Tile {
+        FLOOR,
+        WALL,
+    }
+
+    class Position {
+        x: Int
+        y: Int
+        distance(oth: Position): Int
+        adjacentBySidePositions(): [Position]
+        adjacentPositions(): [Position]
+        operator plus(dir: Direction): Position
+    }
+
+}
+
+Interface Fighter {
+    getAttack(): Int
+    takeDamage(Fighter oth)
+    dealDamage(Fighter oth)
+}
+
+
+package player {
+
+    class Player {
+        getArmor(): Int
+        getAttack(): Int
+        dropItem(Item item)
+        equipItem(Item item)
+    }
+
+    class Inventory {
+    }
+
+    class Experience {
+        getLevel(): Int
+        getPoints(): Int
+        addPoints(Int)
+    }
+
+    Equipment *-- Weapon
+    Equipment *-- Armor
+
+    class Equipment {
+    }
+
+    Unit <|-- Player
+    Fighter <|-- Player
+
+    Player *-- Inventory
+    Player *-- Experience
+    Player *-- Equipment
+
+    Inventory "1" *-- "*" Item
+}
+
+package mobs {
+
+    abstract Mob {
+        getAppearance(): MobAppearance
+        getXp(): Int
+        # strategy: MobStrategy
+        - confusedTurnCount: Int
+
+        doTurn()
+        Mob(GameController, Position, MobStrategy)
+    }
+
+    Fighter <|-- Mob
+    Unit <|-- Mob
+
+    class ReplicantEnemy {
+        - spawnMob: (Mob) -> kotlin.Unit,
+        dealDamage(Fighter)
+    }
+
+    note bottom of ReplicantEnemy
+        Command pattern to create mob
+    end note
+
+    Mob <|-- ReplicantEnemy
+    class CowardEnemy
+    Mob <|-- CowardEnemy
+    class PeacefulInhabitant
+    Mob <|-- PeacefulInhabitant
+    class StaticEnemy
+    Mob <|-- StaticEnemy
+    class AverageEnemy
+    Mob <|-- AverageEnemy
+
+    interface MobFactory {
+        newAverageEnemy(Position): AverageEnemy
+        newStaticEnemy(Position): StaticEnemy
+        newPeacefulInhabitant(Position): PeacefulInhabitant
+        newCowardEnemy(Position): CowardEnemy
+        newReplicantEnemy(Position): ReplicantEnemy
+        newRandomMob(Position): Mob
+    }
+
+    Context o-- MobFactory
+    class ScientificMobFactory
+    class FantasyMobFactory
+    MobFactory <|-- ScientificMobFactory
+    MobFactory <|-- FantasyMobFactory
+
+    package strategy {
+        abstract MobStrategy {
+            getUnit: Unit
+            getContext: Context
+            doTurn(): Position
+            {static} fromKind(MobStrategyKind, Context, Unit): MobStrategy
+        }
+
+        class PeacefulInhabitant
+        MobStrategy <|-- PeacefulInhabitant
+        class PlayerChaser
+        MobStrategy <|-- PlayerChaser
+        class StaticDamageDealer
+        MobStrategy <|-- StaticDamageDealer
+        class Withdrawer
+        MobStrategy <|-- Withdrawer
+    }
+
+    Mob *-- MobStrategy
+
+    package behavior {
+        interface Behavior {
+            fun doTurn(Context, Unit): Position
+        }
+        class Roam
+        Behavior <|-- Roam
+        class Flee
+        Behavior <|-- Flee
+        class ChasePlayer
+        Behavior <|-- ChasePlayer
+    }
+}
+
+
+GameController *- TimedGameEvent
+
+Context *-- Player
+Context "1" *-- "*" Mob
+Context *-- Map
 
 @enduml
