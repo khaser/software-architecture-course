@@ -21,11 +21,11 @@ open class Mob(
     unit: Unit,
     val appearance: MobAppearance,
     val xp: Int,
-    strategyKind: MobStrategyKind,
+    protected val strategyKind: MobStrategyKind,
 ) : Unit(unit), Fighter {
     protected val strategy = MobStrategy.fromKind(strategyKind, context, this)
 
-    var confusedTurnCount = 0
+    private var confusedTurnCount = 0
     override val attack: Int
         get() = baseAttack
 
