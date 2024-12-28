@@ -1,0 +1,15 @@
+@startuml
+boundary "Customer front" as cfront
+entity "Customer back" as cback
+entity "Backend" as back
+actor "User" as user
+
+cback -> back : post {новая книга}
+cback <- back : OK
+cback -> back : post {появилось 100 книг}
+user <- back : хочу книгу
+user <- back : 303 (See other)
+user <-> cfront : процесс заказа на сайте партнёра
+cback -> back : продано
+
+@enduml
