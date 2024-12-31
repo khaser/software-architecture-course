@@ -1,0 +1,109 @@
+openapi: "3.0.3"
+info:
+  title: "Books API"
+  description: "API to get info and filter books"
+  version: "1.0.0"
+servers:
+  - url: "http://0.0.0.0:8080"
+paths:
+  /books:
+    get:
+      summary: "Returns all books"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookList"
+        400:
+          description: "Bad request"
+  /books/search:
+    get:
+      summary: "Return filtered by keyword books"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookList"
+        400:
+          description: "Bad request"
+  /book/{id}:
+    get:
+      summary: "Returns a book by the ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        400:
+          description: "Bad request"
+  /book/{id}/reviews:
+    get:
+      description: reviews by the book ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            $ref: "#/components/schemas/Review"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewList"
+
+components:
+  schemas:
+    BookList:
+      type: "array"
+      items:
+        $ref: "#/components/schemas/Book"
+    Book:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+        name:
+          type: "string"
+        desc:
+          type: "string"
+        categories:
+          type: "array"
+          items:
+            type: "string"
+        authors:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              name:
+                type: "string"
+    ReviewList:
+      type: "array"
+      items:
+        $ref: "#/components/schemas/Review"
+    Review:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+        desc:
+          type: "string"
+        rating:
+          type: "number"
+          format: "double"
