@@ -32,7 +32,7 @@ fun Application.mainModule() {
 fun Application.routing() {
     val repo = MockRepository()
     routing {
-        swaggerUI(path="swagger", swaggerFile = "openapi/documentation.yaml")
+        swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
         route("/api") {
             get("/books") {
                 call.respond(HttpStatusCode.OK, Json.encodeToString(repo.getAllBooks()))

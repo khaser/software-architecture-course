@@ -6,7 +6,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 
 enum class Category {
-    Fiction, Fantasy, Romance, Programming
+    Fiction,
+    Fantasy,
+    Romance,
+    Programming,
 }
 
 typealias Name = String
@@ -21,9 +24,8 @@ data class Book(
     val desc: String,
     val rating: Rating,
     val categories: List<Category>,
-    val authors: List<Author>
+    val authors: List<Author>,
 )
-
 
 typealias BookSet = List<Book>
 typealias Cart = BookSet
@@ -49,7 +51,7 @@ data class CriticReview(
     val name: Name,
     override val id: Int,
     override val desc: String,
-    override val rating: Rating
+    override val rating: Rating,
 ) : Review
 
 @Serializable

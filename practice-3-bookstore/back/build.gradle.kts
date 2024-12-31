@@ -7,7 +7,6 @@ plugins {
     id("io.ktor.plugin") version "2.3.12"
     kotlin("plugin.serialization") version "2.0.20"
     id("app.cash.sqldelight") version "2.0.2"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }
 
 group = "ru.mkn"

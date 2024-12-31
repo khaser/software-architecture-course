@@ -53,3 +53,13 @@
 
 ### Диаграмма интеграции партнёра
 ![Partner integration](./uml/rendered/partner_integration.png)
+
+### Запуск
+Backend:
+```sh
+cd back && gradle run
+```
+Frontend (development server for simplicity):
+```sh
+cd front && npm run start
+```
