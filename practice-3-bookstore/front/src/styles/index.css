@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bookdetail{
+  @apply max-w-5xl mx-auto flex items-center justify-center 
+}
+.bookdetail-container{
+  @apply mt-12 rounded-2xl shadow-2xl p-3 h-auto bg-slate-100 mx-5 lg:mx-0
+}
+.bookdetail-title{
+  @apply pt-3 font-bold tracking-tight lg:text-2xl;
+}
