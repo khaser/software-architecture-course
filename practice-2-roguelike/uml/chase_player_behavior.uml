@@ -1,0 +1,18 @@
+@startuml
+!pragma useVerticalIf on
+start
+if (Player position <= Mob intuition distance) then (yes)
+  if (find shortest 'path' to player) then ('path' exists)
+    if (first ceil on 'path' is free) then (yes)
+      :go to first position on 'path';
+      stop
+    endif
+  endif
+endif
+if (exists free adjacent ceil) then (yes)
+  :move into that ceil;
+else
+  :remain in place;
+endif
+stop
+@enduml

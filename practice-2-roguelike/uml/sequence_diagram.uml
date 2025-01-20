@@ -1,0 +1,46 @@
+@startuml
+PlayView -> GameController : playerMoveTo(direction)
+GameController -> Context : getMobIn(position)
+alt position occupied by mob
+    GameController <- Context : mob
+    GameController -> Player : dealDamage(mob)
+    alt mob killed
+        GameController -> Context : mobs.remove(mob)
+        GameController -> GameController : deschedule killed mob turn
+        GameController -> Player : experience.addPoints
+    end
+else No mob, tile is FLOOR
+    GameController -> Player : setPosition
+else No mob, tile is WALL
+    GameController -> Context : map.tiles.setTile(pos, FLOOR)
+end
+
+loop each event before next player turn
+    GameController -> MobTurn : execute(context)
+    MobTurn -> Mob : doTurn()
+    Mob -> MobStrategy : doTurn()
+    MobTurn <- MobStrategy : mobTurnPosition
+    alt mobTurnPosition == player
+        MobTurn -> Mob : dealDamage(player)
+    else mobTurnPosition != player
+        MobTurn -> Mob : setPosition(mobTurnPosition)
+    end
+    MobTurn -> Mob : regenerateHp
+    GameController -> GameController : schedule next MobTurn execution
+end
+
+alt player killed
+    PlayView <- GameController : GAME_OVER
+    PlayView -> PlayView : Change view to "LoseView"
+else player alive
+    PlayView <- GameController : IN_PROGRESS
+    PlayView <-> Player : update info about player
+    alt player leveled up
+        PlayView -> PlayView : Show "LevelUpDialog"
+        PlayView -> GameController : acquire level up gain
+        GameController -> Player : update stats
+    end
+    PlayView <-> Context : update info about game context
+    PlayView -> PlayView : Redraw "PlayView"
+end
+@enduml

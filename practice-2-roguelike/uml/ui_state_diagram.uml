@@ -1,0 +1,32 @@
+@startuml
+
+[*] -> Greet
+Greet : window with greeting text
+Greet -> StartNewGame : click "play" button
+StartNewGame: state hidden from user
+StartNewGame: calls GameController constructor to init new game
+StartNewGame --> PlayView : click "play" button
+
+PlayView --> UpdateModel : player press "wasd" keys to move or "p" to pick up items
+PlayView : main game view: shows map with player, monsters and dropped items
+PlayView -> Inventory: player press "i" to open inventory
+
+UpdateModel: state hidden from user.
+UpdateModel: UI calls model command & get updates from `Context` class.
+UpdateModel --> PlayView : Game in progress
+UpdateModel --> GameOver : player die
+
+Inventory: display player items
+Inventory -> PlayView: click "close" button
+
+Inventory --> UpdateModelFromInventory : Equip item
+Inventory --> UpdateModelFromInventory: Drop item
+UpdateModelFromInventory: state hidden from user.
+UpdateModelFromInventory: UI calls model command & get updates from `Context` class.
+
+UpdateModelFromInventory --> Inventory: Game in progress
+UpdateModelFromInventory --> GameOver: player die
+GameOver --> [*]: click "quit" button
+GameOver -up-> StartNewGame: click "Restart" button, start new game
+
+@enduml
