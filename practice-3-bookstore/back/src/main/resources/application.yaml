@@ -1,0 +1,6 @@
+ktor:
+  application:
+    modules:
+      - ru.mkn.ApplicationKt.mainModule
+  deployment:
+    port: 8080

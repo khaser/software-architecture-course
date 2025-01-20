@@ -1,0 +1,50 @@
+@startuml
+
+actor "Пользователь" as user
+actor "Администратор" as admin
+entity "Сторонний магазин" as side_shop
+entity "Партнёр для интеграции" as int_partner
+actor "Работник склада" as kladman
+
+entity api.books.su as bapi
+entity books.su as fapi
+entity "books.su/admin" as aapi
+entity "books.su/warehouse" as wapi
+
+boundary "Banks" as bank
+
+user - fapi : HTTPS
+user - bapi : HTTPS
+side_shop - bapi : HTTPS
+int_partner -up- bapi : HTTPS
+
+admin - aapi : HTTPS
+kladman - wapi : HTTPS
+
+wapi -[hidden]- aapi
+aapi -[hidden]- fapi
+fapi -[hidden]- bapi
+
+cloud "\t\t\t\tYandex Cloud" {
+
+    [=Database cluster] as db
+    [=Frontend Serverless\nContainers cluster] as front
+    [=Backend Serverless\nContainers cluster] as back
+    [=S3 Object storage] as storage
+
+    bapi <-right-> back : HTTP
+    fapi <- storage : HTTP
+    fapi <-> front : HTTP
+    aapi <-> front : HTTP
+    wapi <-> front : HTTP
+
+    front -[hidden]- back
+    back <-down-> db
+    storage <-- back
+    front -[hidden]- storage
+
+    portout payment
+    payment <--> back
+    bank - payment
+}
+@enduml

@@ -1,0 +1,75 @@
+@startuml
+class User {
+    hashedPassword: String
+}
+User *-- Address
+User *-- Name
+
+Admin *-- Name
+StoreWorker *-- Name
+
+class JwtService
+class ModelRepository
+class S3Service
+class PaymentService
+
+Order o-- User
+enum OrderState {
+    ORDERED
+    SENT
+    CANCELLED
+    DONE
+    REFUND
+    SUCCESS
+    REFUND_SUCCESS
+}
+Order o- OrderState
+
+class Book {
+    count: Int
+    name: String
+    desc: Text
+    categories: List[Category]
+}
+
+Book o- Author
+enum Category
+Book o- Category
+
+Book --o Order
+
+Catalogue o-- Book
+
+class Review {
+    desc: Text
+}
+
+class UserReview {
+    isPublished: Boolean
+}
+
+Review <|-- UserReview
+Review o- Rating
+enum Rating {
+    1, 2, 3, 4, 5,
+}
+
+UserReview o-- User
+
+class CriticReview {
+    criticName: String
+    rating: Rating
+    text: Text
+}
+
+Review <|-- CriticReview
+
+Store "1" o-- "*" Book
+
+Bookset <|-- Cart
+Bookset <|-- WishList
+
+User *-- WishList
+User *-- Cart
+
+@enduml

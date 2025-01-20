@@ -1,0 +1,16 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+gradle/wrapper/**
+gradle-cache/**
+gradlew*
+
+# Ignore Gradle build output directory
+build
+
+# Ignore direnv configuration & temporary files
+.direnv
+.envrc
+.kotlin
+
+# Ignore idea files
+.idea

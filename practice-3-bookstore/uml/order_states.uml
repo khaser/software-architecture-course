@@ -1,0 +1,28 @@
+@startuml
+
+[*] -> Ordered
+Ordered : Заказ создан,
+Ordered : но ещё не оплачен
+Ordered -> Paid
+Paid : Заказ оплачен
+Paid -> Sent
+Sent : заказ отправлен со склада
+Ordered -down-> Cancelled
+Paid --> Refund
+Sent --> Refund : проблема при отправке
+Sent -> Done
+Done : служба доставки отметила
+Done : доставку как исполненную
+Done --> Refund : покупатель запросил возврат
+Done -right-> Success : после 7 дней
+Success : заказ завершён
+Success : возвраты больше не принимаются
+Success --> [*]
+Refund : запрошен возврат и ждёт
+Refund : действий от администратора
+Refund -> RefundSuccess
+RefundSuccess : администратор удовлетворил
+RefundSuccess : возврат пользователя
+RefundSuccess -> [*]
+
+@enduml
