@@ -5,10 +5,14 @@ use std::slice::Iter;
 
 use crate::cu_kind::{self, Command::*};
 use crate::env::Env;
+use crate::state::AppState;
+
+use super::cd::run_cd;
 
 pub struct Scheduler<'a> {
     pub should_terminate: bool,
     env: &'a mut Env,
+    state: &'a mut AppState,
 }
 
 #[derive(Debug, PartialEq)]
@@ -28,14 +32,18 @@ impl From<IoError> for ExecError {
 type ExecResult = std::result::Result<(), ExecError>;
 
 impl<'a> Scheduler<'a> {
-    pub fn new(env: &'a mut Env) -> Self {
+    pub fn new(env: &'a mut Env, state: &'a mut AppState) -> Self {
         Scheduler {
             should_terminate: false,
             env,
+            state,
         }
     }
 
     pub fn run(&mut self, commands: Vec<cu_kind::Command>) -> Vec<ExitCode> {
+        if let Some(res) = self.handle_single_cmd(&commands) {
+            return vec![res];
+        }
         let mut stdio_state = Stdio::inherit();
         let exit_codes = commands
             .into_iter()
@@ -64,6 +72,15 @@ impl<'a> Scheduler<'a> {
                         self.external(self.get_builtin_absolute_path("wc"), args.iter(), stdin)
                     }
                     Pwd => self.external(self.get_builtin_absolute_path("pwd"), [].iter(), stdin),
+                    Ls(args) => {
+                        self.external(self.get_builtin_absolute_path("ls"), args.iter(), stdin)
+                    }
+                    Cd(_) => {
+                        /* This command do nothing when executed as a part
+                         * of the multi commands statement.
+                         * */
+                        Ok(())
+                    }
                     Grep(args) => {
                         self.external(self.get_builtin_absolute_path("grep"), args.iter(), stdin)
                     }
@@ -85,6 +102,19 @@ impl<'a> Scheduler<'a> {
         child.wait().unwrap();
 
         exit_codes
+    }
+
+    /// Handles commands that behave differently when executed as single commands.
+    fn handle_single_cmd(&mut self, commands: &[cu_kind::Command]) -> Option<ExitCode> {
+        if commands.len() != 1 {
+            None
+        } else {
+            match commands[0] {
+                Cd(ref args) => Some(run_cd(&mut self.state, args)),
+                /* Will be processes as a part of multi statement command. */
+                _ => None,
+            }
+        }
     }
 
     fn get_builtin_absolute_path(&self, executable: &str) -> OsString {

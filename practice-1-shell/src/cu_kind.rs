@@ -10,4 +10,6 @@ pub enum Command {
     External(String, Args),
     SetEnvVar(String, String),
     Grep(Args),
+    Ls(Args),
+    Cd(Args),
 }

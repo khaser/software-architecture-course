@@ -127,6 +127,8 @@ impl<'a, 'b> Parser<'a> {
                 "pwd" => Command::Pwd,
                 "exit" => Command::Exit,
                 "grep" => Command::Grep(args),
+                "cd" => Command::Cd(args),
+                "ls" => Command::Ls(args),
                 _ => Command::External(command, args),
             })
         } else {
